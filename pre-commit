@@ -1,0 +1,84 @@
+#!/bin/bash
+
+STAGED_GO_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep ".go$")
+
+if [ "$STAGED_GO_FILES" = "" ]; then
+    exit 0
+fi
+
+PASS=true
+
+for FILE in $STAGED_GO_FILES
+do
+    # Skip files in the vendor directory
+    if [ "$FILE" = "vendor"* ];then
+        continue
+    fi
+
+    # # goimports Check and adjust the import statement
+    goimports -w -v $FILE
+    if [ $? != 0 ]; then
+        PASS=false
+    fi
+
+    # # golint Check the code style and give hints
+    golangci-lint run
+    if [ $? != 0 ]; then
+        PASS=false
+    fi
+
+    # golint -set_exit_status $FILE
+    # if [ $? == 11 ]; then
+    #     PASS=false
+    # fi
+
+    # # go tool vet Check static errors in the code
+    go vet $FILE
+    if [ $? != 0 ]; then
+        PASS=false
+    fi
+
+	 # goimports Check and adjust the import statement
+    go test ./... -coverprofile=coverage.out
+    if [ $? != 0 ]; then
+        PASS=false
+    fi
+
+    go tool cover -html=coverage.out
+    if [ $? != 0 ]; then
+        PASS=false
+    fi
+
+
+    # # Detection shadow
+    # # Need to install: go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+    # go vet -vettool=$(which shadow) $FILE
+    # if [ $? != 0 ]; then
+    #     PASS=false
+    # fi
+
+
+  # If the current file is not formatted, format it
+    UNFORMATTED=$(gofmt -l $FILE)
+    if [ "$UNFORMATTED" != "" ];then
+        gofmt -w $PWD/$UNFORMATTED
+        if [ $? != 0 ]; then
+            PASS=false
+        fi
+    fi
+
+    # The above goimports, gofmt may make changes to the file,
+    # So here to submit the changes to the staging area
+    git add $FILE
+
+done
+
+if ! $PASS; then
+    printf "\033[31m COMMIT FAILED \033[0m\n"
+    exit 1
+else
+    printf "\033[32m COMMIT SUCCEEDED \033[0m\n"
+fi
+
+exit 0
+

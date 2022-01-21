@@ -1,0 +1,10 @@
+
+vendor/
+article_clean
+*.test
+.DS_Store
+engine
+bin/
+.vscode
+.idealogs/
+logs/

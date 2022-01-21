@@ -23,10 +23,6 @@ type SampleModuleHandler struct {
 	Log                 logger.Logger
 }
 
-func (c *SampleModuleHandler) URLMapping() {
-	c.Mapping("List", c.Get)
-	c.Mapping("Documentation", c.Get)
-}
 
 // NewsampleModuleHandler will initialize the countrys/ resources endpoint
 func NewsampleModuleHandler(us sample_module.Usecase, log logger.Logger) {
@@ -35,14 +31,9 @@ func NewsampleModuleHandler(us sample_module.Usecase, log logger.Logger) {
 		SampleModuleUsecase: us,
 	}
 
-	ns := beego.NewNamespace("/api",
-		beego.NSNamespace("/sample-module",
-			beego.NSInclude(
-				handler,
-			),
-		),
-	)
-	beego.AddNamespace(ns)
+
+	beego.Router("/api/sample-module",handler,"*:List")
+	beego.Router("/swagger",handler,"*:Documentation")
 
 }
 func (a *SampleModuleHandler) Documentation()  {

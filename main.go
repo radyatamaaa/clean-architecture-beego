@@ -44,7 +44,18 @@ func main() {
 	timeout, _ := strconv.Atoi(os.Getenv("APP_TIMEOUT"))
 	//env := os.Getenv("APP_ENV")
 
+	sampleModuleRepo := _sampleModuleRepo.NewSampleModuleRepository(nil, l)
 
+	timeoutContext := time.Duration(timeout) * time.Second
+
+	sampleModuleUsecase := _sampleModuleUsecase.NewSampleModuleUsecase(sampleModuleRepo, l, timeoutContext)
+
+	_sampleModuleHttpHandler.NewsampleModuleHandler( sampleModuleUsecase, l)
+
+	if beego.BConfig.RunMode == "dev" {
+		beego.BConfig.WebConfig.DirectoryIndex = true
+		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+	}
 	beego.InsertFilter("*", beego.BeforeRouter, cors.Allow(&cors.Options{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{"PUT", "PATCH", "GET", "POST", "OPTIONS", "DELETE"},
@@ -58,13 +69,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	sampleModuleRepo := _sampleModuleRepo.NewSampleModuleRepository(nil, l)
 
-	timeoutContext := time.Duration(timeout) * time.Second
-
-	sampleModuleUsecase := _sampleModuleUsecase.NewSampleModuleUsecase(sampleModuleRepo, l, timeoutContext)
-
-	_sampleModuleHttpHandler.NewsampleModuleHandler( sampleModuleUsecase, l)
 	beego.Run()
 	//log.Fatal(e.Start(":" + appPort))
 }

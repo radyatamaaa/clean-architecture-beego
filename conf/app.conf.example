@@ -1,0 +1,19 @@
+appname = clean-architecture-beego
+httpport = 8080
+runmode = dev
+autorender = false
+copyrequestbody = true
+EnableDocs = true
+dbConnUrl = ""
+
+dbdebug = true
+sqlserveruser = ""
+sqlserverpass = ""
+sqlserverurls = ""
+sqlserverport = 1433
+sqlserverdb   = ""
+sqlserveroptions   = "charset=utf8mb4&parseTime=True&loc=Local"
+sqlservermaxopenconn = 25
+sqlservermaxidleconn = 25
+sqlservermaxlifetimeconn = 300
+

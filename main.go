@@ -3,10 +3,15 @@ package main
 import (
 	"clean-architecture-beego/database"
 	"clean-architecture-beego/internal/domain"
+	productGrpc "clean-architecture-beego/internal/product/delivery/grpc"
 	productHandler "clean-architecture-beego/internal/product/delivery/http"
 	productRepo "clean-architecture-beego/internal/product/repository"
 	productUcase "clean-architecture-beego/internal/product/usecase"
 	beego "github.com/beego/beego/v2/server/web"
+	"google.golang.org/grpc"
+	"log"
+	"net"
+
 	//_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	//_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	//_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
@@ -26,6 +31,7 @@ func main() {
 
 	//global timeout
 	timeout, err := beego.AppConfig.Int("timeout")
+	httpportGRPC, err := beego.AppConfig.String("httpportGRPC")
 	if err != nil {
 		panic(err)
 	}
@@ -49,9 +55,30 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	productRepository := productRepo.NewProductRepository(nil)
+	productRepository := productRepo.NewProductRepository(db)
 	productUseCase := productUcase.NewProductUseCase(timeoutContext,productRepository)
 	productHandler.NewProductHandler(productUseCase)
 
-	beego.Run()
+	go func() {
+		beego.Run()
+	}()
+
+	listen, err := net.Listen("tcp", ":"+httpportGRPC)
+	if err != nil {
+		log.Fatalf("Could not listen @ %v :: %v", httpportGRPC, err)
+	}
+	log.Println("service Running @ : " + httpportGRPC)
+
+	grpcserver := grpc.NewServer()
+
+	//register Services
+	productService := productGrpc.NewProductService(productUseCase)
+	productGrpc.RegisterProductServiceServer(grpcserver,productService)
+
+	//grpc listen and serve
+	err = grpcserver.Serve(listen)
+	if err != nil {
+		log.Fatalf("Failed to start gRPC Server :: %v", err)
+	}
+
 }

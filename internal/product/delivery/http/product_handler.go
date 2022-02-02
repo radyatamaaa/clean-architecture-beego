@@ -9,12 +9,12 @@ import (
 
 type ProductHandler struct {
 	beego.Controller
-	productUseCase domain.ProductUseCase
+	ProductUseCase domain.ProductUseCase
 }
 
 func NewProductHandler(useCase domain.ProductUseCase) {
 	handler := &ProductHandler{
-		productUseCase: useCase,
+		ProductUseCase: useCase,
 	}
 
 	beego.Router("/api/v1/products", handler, "get:GetProducts")
@@ -44,7 +44,7 @@ func (h *ProductHandler) GetProducts() {
 	if parse, err := strconv.Atoi(offsetParam); err == nil {
 		offset = parse
 	}
-	result, err := h.productUseCase.GetProducts(ctx,limit, offset)
+	result, err := h.ProductUseCase.GetProducts(ctx,limit, offset)
 	if err != nil {
 		h.Data["json"] = beego.M{
 			"message": "internal server error",
@@ -56,7 +56,7 @@ func (h *ProductHandler) GetProducts() {
 		return
 	}
 	h.Data["json"] = beego.M{
-		"message": "internal server error",
+		"message": "success",
 		"error":   nil,
 		"data":    result,
 	}

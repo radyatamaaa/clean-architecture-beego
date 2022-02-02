@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"gorm.io/gorm"
 	"math"
 )
@@ -17,10 +18,10 @@ type Paginator struct {
 	Records     interface{}
 }
 
-func paginateScope(page, pageSize int) func(db *gorm.DB) *gorm.DB {
+func paginateScope(ctx context.Context,page, pageSize int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		offset := (page - 1) * pageSize
-		return db.Offset(offset).Limit(pageSize)
+		return db.WithContext(ctx).Offset(offset).Limit(pageSize)
 	}
 }
 
@@ -61,7 +62,7 @@ func (p *Paginator) updatePageInfo() {
 // Find requests page information (total records and max page) and
 // executes the transaction. The Paginate struct is updated automatically, as
 // well as the destination slice given in NewPaginate().
-func (p *Paginator) Find() *gorm.DB {
+func (p *Paginator) Find(ctx context.Context) *gorm.DB {
 	p.updatePageInfo()
-	return p.db.Scopes(paginateScope(p.CurrentPage, p.PageSize)).Find(p.Records)
+	return p.db.Scopes(paginateScope(ctx,p.CurrentPage, p.PageSize)).Find(p.Records)
 }

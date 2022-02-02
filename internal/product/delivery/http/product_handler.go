@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"clean-architecture-beego/internal/domain"
 	beego "github.com/beego/beego/v2/server/web"
 	"strconv"
@@ -25,6 +26,11 @@ func NewProductHandler(useCase domain.ProductUseCase) {
 
 func (h *ProductHandler) GetProducts() {
 
+	ctx := h.Ctx.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	// default
 	var limit = 10
 	var offset = 0
@@ -38,7 +44,7 @@ func (h *ProductHandler) GetProducts() {
 	if parse, err := strconv.Atoi(offsetParam); err == nil {
 		offset = parse
 	}
-	result, err := h.productUseCase.GetProducts(limit, offset)
+	result, err := h.productUseCase.GetProducts(ctx,limit, offset)
 	if err != nil {
 		h.Data["json"] = beego.M{
 			"message": "internal server error",

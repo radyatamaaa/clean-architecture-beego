@@ -5,6 +5,7 @@ autorender = false
 copyrequestbody = true
 EnableDocs = true
 dbConnUrl = ""
+timeout = 15
 
 dbdebug = true
 sqlserveruser = ""

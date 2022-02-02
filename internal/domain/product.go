@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"database/sql"
 	"time"
 )
@@ -41,18 +42,18 @@ type ProductUpdateRequest struct {
 }
 
 type ProductUseCase interface {
-	GetProducts(limit, offset int) ([]Product, error)
-	GetProductById(id uint) (*Product, error)
-	SaveProduct(body ProductStoreRequest) error
-	UpdateProduct(body ProductUpdateRequest) error
+	GetProducts(ctx context.Context,limit, offset int) ([]Product, error)
+	GetProductById(ctx context.Context,id uint) (*Product, error)
+	SaveProduct(ctx context.Context,body ProductStoreRequest) error
+	UpdateProduct(ctx context.Context,body ProductUpdateRequest) error
 }
 
 type ProductRepository interface {
-	Fetch(limit int, offset int) ([]Product, error)
-	FindByID(id uint) (Product, error)
-	Update(product Product) error
-	Store(product Product) error
-	Delete(id int) error
+	Fetch(ctx context.Context,limit int, offset int) ([]Product, error)
+	FindByID(ctx context.Context,id uint) (Product, error)
+	Update(ctx context.Context,product Product) error
+	Store(ctx context.Context,product Product) error
+	Delete(ctx context.Context,id int) error
 }
 
 func (p Product) ToProductResponse() ProductObjectResponse {

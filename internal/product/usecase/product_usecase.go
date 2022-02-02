@@ -1,29 +1,42 @@
 package usecase
 
 import (
+	"context"
 	"clean-architecture-beego/internal/domain"
 	"database/sql"
+	"time"
 )
 
 type productUseCase struct {
+	contextTimeout                  time.Duration
 	productRepository domain.ProductRepository
 }
 
-func NewProductUseCase(ur domain.ProductRepository) domain.ProductUseCase {
-	return &productUseCase{productRepository: ur}
+func NewProductUseCase(timeout time.Duration,ur domain.ProductRepository) domain.ProductUseCase {
+	return &productUseCase{
+		productRepository: ur,
+		contextTimeout: timeout,
+	}
 }
 
-func (p productUseCase) GetProducts(limit, offset int) ([]domain.Product, error) {
-	return p.productRepository.Fetch(limit, offset)
+func (p productUseCase) GetProducts(c context.Context,limit, offset int) ([]domain.Product, error) {
+	ctx, cancel := context.WithTimeout(c, p.contextTimeout)
+	defer cancel()
+	return p.productRepository.Fetch(ctx,limit, offset)
 }
 
-func (p productUseCase) GetProductById(id uint) (*domain.Product, error) {
-	result, err := p.productRepository.FindByID(id)
+func (p productUseCase) GetProductById(c context.Context,id uint) (*domain.Product, error) {
+	ctx, cancel := context.WithTimeout(c, p.contextTimeout)
+	defer cancel()
+	result, err := p.productRepository.FindByID(ctx,id)
 	return &result, err
 }
 
-func (p productUseCase) SaveProduct(body domain.ProductStoreRequest) error {
-	return p.productRepository.Store(domain.Product{
+func (p productUseCase) SaveProduct(c context.Context,body domain.ProductStoreRequest) error {
+	ctx, cancel := context.WithTimeout(c, p.contextTimeout)
+	defer cancel()
+
+	return p.productRepository.Store(ctx,domain.Product{
 		ProductName: body.Name,
 		Price:       sql.NullFloat64{Float64: *body.Price, Valid: body.Price != nil},
 		ActiveSale:  false,
@@ -31,8 +44,10 @@ func (p productUseCase) SaveProduct(body domain.ProductStoreRequest) error {
 	})
 }
 
-func (p productUseCase) UpdateProduct(body domain.ProductUpdateRequest) error {
-	return p.productRepository.Update(domain.Product{
+func (p productUseCase) UpdateProduct(c context.Context,body domain.ProductUpdateRequest) error {
+	ctx, cancel := context.WithTimeout(c, p.contextTimeout)
+	defer cancel()
+	return p.productRepository.Update(ctx,domain.Product{
 		Id:          body.Id,
 		ProductName: body.Name,
 		Price:       sql.NullFloat64{Float64: *body.Price, Valid: body.Price != nil},

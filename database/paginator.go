@@ -11,6 +11,8 @@ import (
 type Paginator struct {
 	db *gorm.DB
 
+	BackPage int
+	NextPage     int
 	MaxPage     int64
 	Total       int64
 	PageSize    int
@@ -57,6 +59,18 @@ func (p *Paginator) updatePageInfo() {
 	if p.MaxPage == 0 {
 		p.MaxPage = 1
 	}
+	prev := p.CurrentPage
+	next := p.CurrentPage
+	if p.CurrentPage != 1 {
+		prev = p.CurrentPage - 1
+	}
+
+	if p.CurrentPage != int(p.MaxPage)  {
+		next = p.CurrentPage + 1
+	}
+
+	p.NextPage = next
+	p.BackPage = prev
 }
 
 // Find requests page information (total records and max page) and

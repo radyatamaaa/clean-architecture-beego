@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 )
 
@@ -34,16 +35,16 @@ type CustomerUpdateRequest struct {
 }
 
 type CustomerUseCase interface {
-	GetCustomer(limit, offset int) ([]Order, error)
-	GetCustomerById(body OrderStoreRequest) error
-	SaveCustomer(body OrderStoreRequest) error
-	UpdateCustomer(body OrderUpdateRequest) error
+	GetCustomers(ctx context.Context, limit, offset int) ([]Customer, error)
+	GetCustomerById(ctx context.Context, id uint) (*Customer, error)
+	SaveCustomer(ctx context.Context, body CustomerStoreRequest) error
+	UpdateCustomer(ctx context.Context, body CustomerUpdateRequest) error
 }
 
 type CustomerRepository interface {
-	Fetch(limit int, offset int) ([]Customer, error)
-	FindByID(id string) (Customer, error)
-	Update(order Customer) error
-	Store(order Customer) error
-	Delete(id int) error
+	Fetch(ctx context.Context, limit int, offset int) ([]Customer, error)
+	FindByID(ctx context.Context, id uint) (Customer, error)
+	Update(ctx context.Context, product Customer) error
+	Store(ctx context.Context, product Customer) error
+	Delete(ctx context.Context, id int) error
 }

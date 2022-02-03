@@ -8,21 +8,17 @@ import (
 )
 
 type ProductService struct {
-	ProductUsecase domain.ProductUseCase
+	ProductUseCase domain.ProductUseCase
 }
 
-func NewProductService(productUsecase domain.ProductUseCase) *ProductService {
+func NewProductService(	productUseCase domain.ProductUseCase) *ProductService {
 	return &ProductService{
-		ProductUsecase:              productUsecase,
+		ProductUseCase:productUseCase,
 	}
 }
 
-func (p ProductService) GetProductsAPI(ctx context.Context, request *GetProductsRequest) (*GetProductsResponse, error) {
-	panic("implement me")
-}
-
-func (p ProductService) GetProducts(ctx context.Context, param *GetProductsRequest) (*GetProductsResponse, error) {
-	result := new(GetProductsResponse)
+func (p ProductService) GetProducts(ctx context.Context, params *GetProductsParams) (*GetProductsResult, error) {
+	result := new(GetProductsResult)
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -31,25 +27,31 @@ func (p ProductService) GetProducts(ctx context.Context, param *GetProductsReque
 	var limit = 10
 	var offset = 0
 
-	if parse, err := strconv.Atoi(param.Limit); err == nil {
+	limitParam := params.Limit
+	offsetParam := params.Offset
+
+	if parse, err := strconv.Atoi(limitParam); err == nil {
 		limit = parse
 	}
-	if parse, err := strconv.Atoi(param.Offset); err == nil {
+	if parse, err := strconv.Atoi(offsetParam); err == nil {
 		offset = parse
 	}
-	res, err := p.ProductUsecase.GetProducts(ctx,limit, offset)
-	if err != nil {
+	res, err := p.ProductUseCase.GetProducts(ctx,limit, offset)
+	if err != nil{
 		return nil, err
 	}
 
 	result.Data = p.mappingResultGetProducts(res)
 	result.Message = "success"
+
 	return result,nil
+
 }
-func (v *ProductService)mappingResultGetProducts(r []domain.Product) []*GetProductsResponseDto {
-	res := make([]*GetProductsResponseDto,len(r))
+
+func (v *ProductService)mappingResultGetProducts(r []domain.Product) []*GetProductsDto {
+	res := make([]*GetProductsDto,len(r))
 	for i := range r {
-		res[i] = &GetProductsResponseDto{
+		res[i] = &GetProductsDto{
 			state:         protoimpl.MessageState{},
 			sizeCache:     0,
 			unknownFields: nil,
@@ -65,9 +67,7 @@ func (v *ProductService)mappingResultGetProducts(r []domain.Product) []*GetProdu
 
 	return res
 }
+
 func (p ProductService) mustEmbedUnimplementedProductServiceServer() {
 	panic("implement me")
 }
-
-
-

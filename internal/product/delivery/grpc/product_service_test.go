@@ -19,7 +19,7 @@ func TestProductService_GetProducts(t *testing.T) {
 				t.Fatalf("Failed to dial bufnet: %v", err)
 			}
 			defer connection.Close()
-			req := &GetProductsRequest{
+			req := &GetProductsParams{
 				state:         protoimpl.MessageState{},
 				sizeCache:     0,
 				unknownFields: nil,

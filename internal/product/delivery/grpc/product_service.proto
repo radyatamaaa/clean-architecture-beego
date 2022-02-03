@@ -4,28 +4,21 @@ package product;
 
 option go_package = "./";
 
-import "google/api/annotations.proto";
-
 service ProductService {
-  rpc GetProductsAPI(GetProductsRequest) returns (GetProductsResponse) {
-      option (google.api.http) = {
-          get: "/api/v1/products"
-      };
-  }
-  rpc GetProducts(GetProductsRequest) returns (GetProductsResponse);
+  rpc GetProducts(GetProductsParams) returns (GetProductsResult);
 }
 
-message GetProductsRequest {
+message GetProductsParams {
   string limit = 1;
   string offset = 2;
 }
 
-message GetProductsResponse {
+message GetProductsResult {
 	string message = 1;
-	repeated GetProductsResponseDto data = 2;
+	repeated GetProductsDto data = 2;
 }
 
-message GetProductsResponseDto {
+message GetProductsDto {
     int32	id = 1;
     string product_name = 2;
     float price = 3;

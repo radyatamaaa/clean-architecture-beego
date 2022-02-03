@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package customer;
+
+option go_package = "./";
+
+service CustomerService {
+  rpc GetCustomers(GetCustomersParams) returns (GetCustomersResult);
+}
+
+message GetCustomersParams {
+  string limit = 1;
+  string offset = 2;
+}
+
+message GetCustomersResult {
+	string message = 1;
+	repeated GetCustomersDto data = 2;
+}
+
+message GetCustomersDto {
+    int32	id = 1;
+    string customer_name = 2;
+    string phone = 3;
+    string email = 4;
+    string address = 5;
+    string created_at = 6;
+    string updated_at = 7;
+}

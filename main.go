@@ -2,22 +2,28 @@ package main
 
 import (
 	"clean-architecture-beego/database"
+	customerGrpc "clean-architecture-beego/internal/customer/delivery/grpc"
+	customerHandler "clean-architecture-beego/internal/customer/delivery/http"
+	customerRepo "clean-architecture-beego/internal/customer/repository"
+	customerUcase "clean-architecture-beego/internal/customer/usecase"
 	"clean-architecture-beego/internal/domain"
 	productGrpc "clean-architecture-beego/internal/product/delivery/grpc"
 	productHandler "clean-architecture-beego/internal/product/delivery/http"
 	productRepo "clean-architecture-beego/internal/product/repository"
 	productUcase "clean-architecture-beego/internal/product/usecase"
-	beego "github.com/beego/beego/v2/server/web"
-	"google.golang.org/grpc"
 	"log"
 	"net"
+
+	beego "github.com/beego/beego/v2/server/web"
+	"google.golang.org/grpc"
 
 	//_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	//_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	//_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
 	//_ "google.golang.org/protobuf/cmd/protoc-gen-go"
-	"github.com/beego/beego/v2/server/web/filter/cors"
 	"time"
+
+	"github.com/beego/beego/v2/server/web/filter/cors"
 )
 
 func main() {
@@ -55,9 +61,15 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	//Product
 	productRepository := productRepo.NewProductRepository(db)
-	productUseCase := productUcase.NewProductUseCase(timeoutContext,productRepository)
+	productUseCase := productUcase.NewProductUseCase(timeoutContext, productRepository)
 	productHandler.NewProductHandler(productUseCase)
+
+	//Customer
+	customerRepository := customerRepo.NewCustomerRepository(db)
+	customerUseCase := customerUcase.NewCustomerUseCase(timeoutContext, customerRepository)
+	customerHandler.NewCustomerHandler(customerUseCase)
 
 	go func() {
 		beego.Run()
@@ -72,8 +84,13 @@ func main() {
 	grpcserver := grpc.NewServer()
 
 	//register Services
+	//product
 	productService := productGrpc.NewProductService(productUseCase)
-	productGrpc.RegisterProductServiceServer(grpcserver,productService)
+	productGrpc.RegisterProductServiceServer(grpcserver, productService)
+
+	//customer
+	customerService := customerGrpc.NewCustomerService(customerUseCase)
+	customerGrpc.RegisterCustomerServiceServer(grpcserver, customerService)
 
 	//grpc listen and serve
 	err = grpcserver.Serve(listen)

@@ -2,16 +2,17 @@ package grpc
 
 import (
 	"context"
+	"log"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/runtime/protoimpl"
-	"log"
-	"testing"
 )
 
 func TestProductService_GetProducts(t *testing.T) {
 	for i := 0; i < 1; i++ {
-		t.Run("TestProductService_GetProducts-success",func(t *testing.T) {
+		t.Run("TestProductService_GetProducts-success", func(t *testing.T) {
 			t.Parallel()
 			var connection *grpc.ClientConn
 			connection, err := grpc.Dial("localhost:9090", grpc.WithInsecure())

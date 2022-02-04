@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package customer;
+
+option go_package = "./";
+
+service CustomerService {
+  rpc GetCustomers(GetCustomersParams) returns (GetCustomersResult);
+  rpc GetCustomerById(GetCustomerByIdParams) returns (GetCustomerByIdResult);
+  rpc StoreCustomer(CustomerStoreRequest) returns (CustomerMessageResult);
+  rpc UpdateCustomer(CustomerUpdateRequest) returns (CustomerMessageResult);
+  rpc DeleteCustomer(GetCustomerByIdParams) returns (CustomerMessageResult);
+}
+
+message GetCustomersParams {
+  string limit = 1;
+  string offset = 2;
+}
+
+message GetCustomersResult {
+	string message = 1;
+	repeated GetCustomersDto data = 2;
+}
+
+message GetCustomerByIdResult {
+	string message = 1;
+	GetCustomersDto data = 2;
+}
+
+message GetCustomerByIdParams {
+  int32 id = 1;
+}
+
+message CustomerMessageResult {
+  string message = 1;
+}
+
+message CustomerStoreRequest {
+  string customer_name = 1;
+  string phone = 2;
+  string email = 3;
+  string address = 4;
+}
+
+message CustomerUpdateRequest {
+    int32	id = 1;
+    string customer_name = 2;
+    string phone = 3;
+    string email = 4;
+    string address = 5;
+}
+
+
+message GetCustomersDto {
+    int32	id = 1;
+    string customer_name = 2;
+    string phone = 3;
+    string email = 4;
+    string address = 5;
+    string created_at = 6;
+    string updated_at = 7;
+}

@@ -20,8 +20,15 @@ func NewProductRepository(db *gorm.DB) domain.ProductRepository {
 func (p productRepository) Fetch(ctx context.Context,limit int, offset int) ([]domain.Product, error) {
 	var entities []domain.Product
 	paginator := database.NewPaginator(p.DB, offset, limit, &entities)
+<<<<<<< Updated upstream
 	err := paginator.Find(ctx).Error
 	return entities, err
+=======
+	if err := paginator.Find().Error; err != nil {
+		return nil, err
+	}
+	return entities, nil
+>>>>>>> Stashed changes
 }
 
 func (p productRepository) FindByID(ctx context.Context,id uint) (domain.Product, error) {

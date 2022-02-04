@@ -1,8 +1,8 @@
 package http
 
 import (
-	"context"
 	"clean-architecture-beego/internal/domain"
+	"context"
 	beego "github.com/beego/beego/v2/server/web"
 	"strconv"
 )
@@ -12,18 +12,23 @@ type ProductHandler struct {
 	ProductUseCase domain.ProductUseCase
 }
 
-func NewProductHandler(useCase domain.ProductUseCase) {
-	handler := &ProductHandler{
+func NewProductHandler(useCase domain.ProductUseCase) ProductHandler {
+	return ProductHandler{
 		ProductUseCase: useCase,
 	}
-
-	beego.Router("/api/v1/products", handler, "get:GetProducts")
-	beego.Router("/api/v1/product/:id", handler, "get:GetProductByID")
-	beego.Router("/api/v1/product", handler, "post:StoreProduct")
-	beego.Router("/api/v1/product", handler, "put:UpdateProduct")
-	beego.Router("/api/v1/product/:id", handler, "delete:DeleteProduct")
 }
 
+func (h *ProductHandler) URLMapping() {
+	h.Mapping("GetProducts", h.GetProducts)
+	h.Mapping("StoreProduct", h.StoreProduct)
+	h.Mapping("UpdateProduct", h.UpdateProduct)
+	h.Mapping("DeleteProduct", h.Delete)
+	h.Mapping("GetProductByID", h.GetProductByID)
+
+}
+
+// GetProducts get all products
+// @router / [get]
 func (h *ProductHandler) GetProducts() {
 
 	ctx := h.Ctx.Request.Context()
@@ -45,6 +50,7 @@ func (h *ProductHandler) GetProducts() {
 		offset = parse
 	}
 	result, err := h.ProductUseCase.GetProducts(ctx,limit, offset)
+
 	if err != nil {
 		h.Data["json"] = beego.M{
 			"message": "internal server error",
@@ -66,18 +72,26 @@ func (h *ProductHandler) GetProducts() {
 	return
 }
 
+// StoreProduct save product
+// @router / [post]
 func (h *ProductHandler) StoreProduct() {
 
 }
 
+// UpdateProduct update products
+// @router / [put]
 func (h *ProductHandler) UpdateProduct() {
 
 }
 
+// DeleteProduct get delete products
+// @router /:id [delete]
 func (h *ProductHandler) DeleteProduct() {
 
 }
 
+// GetProductByID product by id
+// @router /:id [get]
 func (h *ProductHandler) GetProductByID() {
 
 }

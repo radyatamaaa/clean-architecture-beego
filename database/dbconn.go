@@ -1,13 +1,13 @@
 package database
 
 import (
-	beego "github.com/beego/beego/v2/server/web"
-	"sync"
-
+	"fmt"
 	_ "github.com/apache/calcite-avatica-go/v5"
-	_ "github.com/go-sql-driver/mysql"
+	beego "github.com/beego/beego/v2/server/web"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"sync"
 )
 
 // singleton instance of database connection.
@@ -33,7 +33,7 @@ func openDB() {
 	}
 	gormDB, err := gorm.Open(
 		sqlserver.Open(dsn),
-		&gorm.Config{SkipDefaultTransaction: true},
+		&gorm.Config{SkipDefaultTransaction: true,Logger:  logger.Default.LogMode(logger.Info)},
 	)
 	if err != nil {
 		panic("cannot open database.")
@@ -45,4 +45,6 @@ func openDB() {
 	}
 	db.SetMaxIdleConns(100)
 	db.SetMaxOpenConns(200)
+
+	fmt.Println("success connect to db")
 }

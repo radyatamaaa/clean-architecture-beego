@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"strconv"
 	"time"
+	"clean-architecture-beego/pkg/helpers/validator"
 )
 var (
 	DateTimeFormatDefault = "2006-01-02 15:04:05"
@@ -269,4 +270,29 @@ func ConvertIntBool(value *int) bool {
 		}
 	}
 	return false
+}
+
+
+func AsInt(param string) int64 {
+
+	i, err := strconv.ParseInt(param, 0, 64)
+	validator.	PanicIf(err)
+
+	return i
+}
+
+func AsUint(param string) uint64 {
+
+	i, err := strconv.ParseUint(param, 0, 64)
+	validator.	PanicIf(err)
+
+	return i
+}
+
+func AsFloat(param string) float64 {
+
+	i, err := strconv.ParseFloat(param, 64)
+	validator.	PanicIf(err)
+
+	return i
 }

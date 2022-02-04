@@ -49,6 +49,89 @@ func (p CustomerService) GetCustomers(ctx context.Context, params *GetCustomersP
 
 }
 
+func (p CustomerService) GetCustomerById(ctx context.Context, params *GetCustomerByIdParams) (*GetCustomerByIdResult, error) {
+	result := new(GetCustomerByIdResult)
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	id := uint(params.Id)
+
+	res, err := p.CustomerUseCase.GetCustomerById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	result.Data = p.mappingResultGetCustomerById(res)
+	result.Message = "success"
+
+	return result, nil
+
+}
+
+func (p CustomerService) StoreCustomer(ctx context.Context, req *CustomerStoreRequest) (*CustomerMessageResult, error) {
+	result := new(CustomerMessageResult)
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	var body domain.CustomerStoreRequest
+	body.CustomerName = req.CustomerName
+	body.Email = req.Email
+	body.Phone = req.Phone
+	body.Address = req.Address
+
+	err := p.CustomerUseCase.SaveCustomer(ctx, body)
+	if err != nil {
+		return nil, err
+	}
+
+	result.Message = "success"
+
+	return result, nil
+}
+
+func (p CustomerService) UpdateCustomer(ctx context.Context, req *CustomerUpdateRequest) (*CustomerMessageResult, error) {
+	result := new(CustomerMessageResult)
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	var body domain.CustomerUpdateRequest
+	body.Id = uint(req.Id)
+	body.CustomerName = req.CustomerName
+	body.Email = req.Email
+	body.Phone = req.Phone
+	body.Address = req.Address
+
+	err := p.CustomerUseCase.UpdateCustomer(ctx, body)
+	if err != nil {
+		return nil, err
+	}
+
+	result.Message = "success"
+
+	return result, nil
+}
+
+func (p CustomerService) DeleteCustomer(ctx context.Context, params *GetCustomerByIdParams) (*CustomerMessageResult, error) {
+	result := new(CustomerMessageResult)
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	id := uint(params.Id)
+
+	err := p.CustomerUseCase.DeleteCustomer(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	result.Message = "success"
+
+	return result, nil
+}
+
 func (v *CustomerService) mappingResultGetCustomers(r []domain.Customer) []*GetCustomersDto {
 	res := make([]*GetCustomersDto, len(r))
 	for i := range r {
@@ -69,6 +152,22 @@ func (v *CustomerService) mappingResultGetCustomers(r []domain.Customer) []*GetC
 	return res
 }
 
+func (v *CustomerService) mappingResultGetCustomerById(r *domain.Customer) *GetCustomersDto {
+	res := &GetCustomersDto{
+		state:         protoimpl.MessageState{},
+		sizeCache:     0,
+		unknownFields: nil,
+		Id:            int32(r.Id),
+		CustomerName:  r.CustomerName,
+		Phone:         r.Phone,
+		Email:         r.Email,
+		Address:       r.Address,
+		CreatedAt:     r.CreatedAt.String(),
+		UpdatedAt:     r.UpdatedAt.String(),
+	}
+
+	return res
+}
 func (p CustomerService) mustEmbedUnimplementedCustomerServiceServer() {
 	panic("implement me")
 }

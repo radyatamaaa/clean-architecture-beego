@@ -5,7 +5,9 @@ go 1.16
 require (
 	github.com/apache/calcite-avatica-go/v5 v5.0.0
 	github.com/beego/beego/v2 v2.0.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect

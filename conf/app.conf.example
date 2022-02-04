@@ -6,6 +6,8 @@ copyrequestbody = true
 EnableDocs = true
 dbConnUrl = "sqlserver://adins:4d1n52007@10.0.0.198:1433?database=beego_sample&charset=utf8mb4&parseTime=True&loc=Local"
 timeout = 15
+httpportGRPC = 9090
+JWTSecret = "secret"
 
 dbdebug = true
 sqlserveruser = "adins"

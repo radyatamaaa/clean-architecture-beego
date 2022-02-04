@@ -1,6 +1,7 @@
 package http
 
 import (
+	"clean-architecture-beego/pkg/helpers/api"
 	"context"
 	"clean-architecture-beego/internal/domain"
 	beego "github.com/beego/beego/v2/server/web"
@@ -25,7 +26,7 @@ func NewProductHandler(useCase domain.ProductUseCase) {
 }
 
 func (h *ProductHandler) GetProducts() {
-
+	response := new(api.Response)
 	ctx := h.Ctx.Request.Context()
 	if ctx == nil {
 		ctx = context.Background()
@@ -46,20 +47,15 @@ func (h *ProductHandler) GetProducts() {
 	}
 	result, err := h.ProductUseCase.GetProducts(ctx,limit, offset)
 	if err != nil {
-		h.Data["json"] = beego.M{
-			"message": "internal server error",
-			"error":   err,
-		}
+		response.MappingResponseError(api.GetStatusCode(err), err.Error() , err)
+		h.Data["json"] = response
 		if err := h.ServeJSON(); err != nil {
 			return
 		}
 		return
 	}
-	h.Data["json"] = beego.M{
-		"message": "success",
-		"error":   nil,
-		"data":    result,
-	}
+	response.MappingResponseSuccess("success", result)
+	h.Data["json"] = response
 	if err := h.ServeJSON(); err != nil {
 		return
 	}

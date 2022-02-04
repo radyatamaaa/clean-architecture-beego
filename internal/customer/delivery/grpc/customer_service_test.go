@@ -10,9 +10,9 @@ import (
 	"google.golang.org/protobuf/runtime/protoimpl"
 )
 
-func TestProductService_GetProducts(t *testing.T) {
+func TestCustomerService_GetCustomers(t *testing.T) {
 	for i := 0; i < 1; i++ {
-		t.Run("TestProductService_GetProducts-success", func(t *testing.T) {
+		t.Run("TestCustomerService_GetCustomer-success", func(t *testing.T) {
 			t.Parallel()
 			var connection *grpc.ClientConn
 			connection, err := grpc.Dial("localhost:9090", grpc.WithInsecure())
@@ -20,15 +20,15 @@ func TestProductService_GetProducts(t *testing.T) {
 				t.Fatalf("Failed to dial bufnet: %v", err)
 			}
 			defer connection.Close()
-			req := &GetProductsParams{
+			req := &GetCustomersParams{
 				state:         protoimpl.MessageState{},
 				sizeCache:     0,
 				unknownFields: nil,
 				Limit:         "1",
 				Offset:        "10",
 			}
-			client := NewProductServiceClient(connection)
-			resp, err := client.GetProducts(context.Background(), req)
+			client := NewCustomerServiceClient(connection)
+			resp, err := client.GetCustomers(context.Background(), req)
 			t.Log("Response: ", resp)
 			log.Printf("Response: %+v", resp)
 			assert.NoError(t, err)

@@ -3,6 +3,7 @@ package http
 import (
 	"clean-architecture-beego/internal/domain"
 	"context"
+	"encoding/json"
 	"strconv"
 
 	beego "github.com/beego/beego/v2/server/web"
@@ -69,16 +70,133 @@ func (h *CustomerHandler) GetCustomers() {
 
 func (h *CustomerHandler) StoreCustomer() {
 
+	var body domain.CustomerStoreRequest
+
+	ctx := h.Ctx.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	json.Unmarshal(h.Ctx.Input.RequestBody, &body)
+	err := h.CustomerUseCase.SaveCustomer(ctx, body)
+	if err != nil {
+		h.Data["json"] = beego.M{
+			"message": "internal server error",
+			"error":   err,
+		}
+		if err := h.ServeJSON(); err != nil {
+			return
+		}
+		return
+	}
+	h.Data["json"] = beego.M{
+		"message": "success",
+		"error":   nil,
+	}
+	if err := h.ServeJSON(); err != nil {
+		return
+	}
+	return
+
 }
 
 func (h *CustomerHandler) UpdateCustomer() {
+	var body domain.CustomerUpdateRequest
 
+	ctx := h.Ctx.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	json.Unmarshal(h.Ctx.Input.RequestBody, &body)
+	err := h.CustomerUseCase.UpdateCustomer(ctx, body)
+	if err != nil {
+		h.Data["json"] = beego.M{
+			"message": "internal server error",
+			"error":   err,
+		}
+		if err := h.ServeJSON(); err != nil {
+			return
+		}
+		return
+	}
+	h.Data["json"] = beego.M{
+		"message": "success",
+		"error":   nil,
+	}
+	if err := h.ServeJSON(); err != nil {
+		return
+	}
+	return
 }
 
 func (h *CustomerHandler) DeleteCustomer() {
+
+	ctx := h.Ctx.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	idParam := h.Ctx.Input.Param(":id")
+	var id uint
+
+	if parse, err := strconv.ParseUint(idParam, 2, 32); err == nil {
+		id = uint(parse)
+	}
+
+	err := h.CustomerUseCase.DeleteCustomer(ctx, id)
+	if err != nil {
+		h.Data["json"] = beego.M{
+			"message": "internal server error",
+			"error":   err,
+		}
+		if err := h.ServeJSON(); err != nil {
+			return
+		}
+		return
+	}
+	h.Data["json"] = beego.M{
+		"message": "success",
+		"error":   nil,
+	}
+	if err := h.ServeJSON(); err != nil {
+		return
+	}
+	return
 
 }
 
 func (h *CustomerHandler) GetCustomerByID() {
 
+	ctx := h.Ctx.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	idParam := h.Ctx.Input.Param(":id")
+	var id uint
+
+	if parse, err := strconv.ParseUint(idParam, 2, 32); err == nil {
+		id = uint(parse)
+	}
+
+	result, err := h.CustomerUseCase.GetCustomerById(ctx, id)
+	if err != nil {
+		h.Data["json"] = beego.M{
+			"message": "internal server error",
+			"error":   err,
+		}
+		if err := h.ServeJSON(); err != nil {
+			return
+		}
+		return
+	}
+	h.Data["json"] = beego.M{
+		"message": "success",
+		"error":   nil,
+		"data":    result,
+	}
+	if err := h.ServeJSON(); err != nil {
+		return
+	}
+	return
 }

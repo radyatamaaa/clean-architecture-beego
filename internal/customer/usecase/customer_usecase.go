@@ -54,3 +54,10 @@ func (p customerUseCase) UpdateCustomer(c context.Context, body domain.CustomerU
 		Address:      body.Address,
 	})
 }
+
+func (p customerUseCase) DeleteCustomer(c context.Context, id uint) error {
+	ctx, cancel := context.WithTimeout(c, p.contextTimeout)
+	defer cancel()
+
+	return p.customerRepository.Delete(ctx, id)
+}

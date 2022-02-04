@@ -38,6 +38,6 @@ func (p customerRepository) Store(ctx context.Context, customer domain.Customer)
 	return p.DB.WithContext(ctx).Create(&customer).Error
 }
 
-func (p customerRepository) Delete(ctx context.Context, id int) error {
+func (p customerRepository) Delete(ctx context.Context, id uint) error {
 	return p.DB.WithContext(ctx).Exec("delete from products where id =?", id).Error
 }

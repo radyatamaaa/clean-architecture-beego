@@ -39,6 +39,7 @@ type CustomerUseCase interface {
 	GetCustomerById(ctx context.Context, id uint) (*Customer, error)
 	SaveCustomer(ctx context.Context, body CustomerStoreRequest) error
 	UpdateCustomer(ctx context.Context, body CustomerUpdateRequest) error
+	DeleteCustomer(ctx context.Context, id uint) error
 }
 
 type CustomerRepository interface {
@@ -46,5 +47,5 @@ type CustomerRepository interface {
 	FindByID(ctx context.Context, id uint) (Customer, error)
 	Update(ctx context.Context, product Customer) error
 	Store(ctx context.Context, product Customer) error
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id uint) error
 }

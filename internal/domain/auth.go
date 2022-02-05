@@ -4,7 +4,7 @@ import "context"
 
 type AuthUseCase interface {
 	SignIn(ctx context.Context, username, password string) (string, error)
-	ParseToken(ctx context.Context, accessToken string) error
+	// Verify(ctx context.Context, accessToken string) error
 }
 
 type AuthLoginRequest struct {

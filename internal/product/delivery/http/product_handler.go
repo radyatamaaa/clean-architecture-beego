@@ -48,10 +48,12 @@ func (h *ProductHandler) GetProducts() {
 	result, err := h.ProductUseCase.GetProducts(ctx,limit, offset)
 	if err != nil {
 		response.MappingResponseError(api.GetStatusCode(err), err.Error() , err)
+		h.Ctx.Output.SetStatus(500)
 		h.Data["json"] = response
 		if err := h.ServeJSON(); err != nil {
 			return
 		}
+
 		return
 	}
 	response.MappingResponseSuccess("success", result)

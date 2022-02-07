@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/apache/calcite-avatica-go/v5 v5.0.0
+	github.com/astaxie/beego v1.12.3
 	github.com/beego/beego/v2 v2.0.1
 	github.com/bxcodec/faker v2.0.1+incompatible
 	github.com/go-playground/validator/v10 v10.10.0
@@ -13,6 +14,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/prometheus/common v0.10.0
+	github.com/smartystreets/goconvey v1.7.2
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20220114011407-0dd24b26b47d // indirect
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect

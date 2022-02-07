@@ -5,7 +5,15 @@ import (
 	"database/sql"
 	"time"
 )
-
+type ProductTest struct {
+	Id          uint            `gorm:"primarykey;autoIncrement:true"`
+	ProductName string          `gorm:"type:varchar(50);column:product_name"`
+	Price       float64 `gorm:"column:product_price"`
+	ActiveSale  bool            `gorm:"column:active_sale"`
+	Stock       int   `gorm:"column:stock"`
+	CreatedAt   time.Time       `gorm:"column:created_at"`
+	UpdatedAt   time.Time       `gorm:"column:updated_at"`
+}
 type Product struct {
 	Id          uint            `gorm:"primarykey;autoIncrement:true"`
 	ProductName string          `gorm:"type:varchar(50);column:product_name"`

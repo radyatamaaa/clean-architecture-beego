@@ -1,11 +1,11 @@
 package validator
 
 import (
-	"clean-architecture-beego/pkg/helpers/converter_value"
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/prometheus/common/log"
 	"reflect"
+	"strconv"
 	"strings"
 )
 func NewValidator() *GlobalValidator {
@@ -56,22 +56,22 @@ func isEq(field reflect.Value, value string) bool {
 		return field.String() == value
 
 	case reflect.Slice, reflect.Map, reflect.Array:
-		p := converter_value. AsInt(value)
+		p := AsInt(value)
 
 		return int64(field.Len()) == p
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		p := converter_value. AsInt(value)
+		p := AsInt(value)
 
 		return field.Int() == p
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		p := converter_value. AsUint(value)
+		p :=  AsUint(value)
 
 		return field.Uint() == p
 
 	case reflect.Float32, reflect.Float64:
-		p := converter_value. AsFloat(value)
+		p :=  AsFloat(value)
 
 		return field.Float() == p
 	}
@@ -107,5 +107,29 @@ func PanicIf(err error) {
 	if err != nil {
 		panic(err.Error())
 	}
+}
+
+func AsInt(param string) int64 {
+
+	i, err := strconv.ParseInt(param, 0, 64)
+		PanicIf(err)
+
+	return i
+}
+
+func AsUint(param string) uint64 {
+
+	i, err := strconv.ParseUint(param, 0, 64)
+	PanicIf(err)
+
+	return i
+}
+
+func AsFloat(param string) float64 {
+
+	i, err := strconv.ParseFloat(param, 64)
+		PanicIf(err)
+
+	return i
 }
 

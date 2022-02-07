@@ -40,7 +40,7 @@ func TestProductUseCase_GetProductById(t *testing.T) {
 		mockProductRepository.AssertExpectations(t)
 	})
 
-	t.Run("error-GetByIdNumber-function", func(t *testing.T) {
+	t.Run("error-FindByID-function", func(t *testing.T) {
 		//repositoryMock
 		mockProductRepository := new(_mockProductRepository.Repository)
 

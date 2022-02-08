@@ -28,13 +28,13 @@ func NewProductHandler(useCase domain.ProductUseCase) {
 	beego.Router("/api/v1/product/:id", pHandler, "delete:DeleteProduct")
 }
 
-func (h *ProductHandler) URLMapping() {
-	h.Mapping("GetProducts", h.GetProducts)
-	h.Mapping("StoreProduct", h.StoreProduct)
-	h.Mapping("UpdateProduct", h.UpdateProduct)
-	h.Mapping("DeleteProduct", h.Delete)
-	h.Mapping("GetProductByID", h.GetProductByID)
-}
+//func (h *ProductHandler) URLMapping() {
+//	h.Mapping("GetProducts", h.GetProducts)
+//	h.Mapping("StoreProduct", h.StoreProduct)
+//	h.Mapping("UpdateProduct", h.UpdateProduct)
+//	h.Mapping("DeleteProduct", h.Delete)
+//	h.Mapping("GetProductByID", h.GetProductByID)
+//}
 
 // GetProducts godoc
 // @Summary Get all products

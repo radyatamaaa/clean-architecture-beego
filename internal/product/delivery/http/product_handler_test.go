@@ -36,7 +36,7 @@ func TestProductHandler_GetProducts(t *testing.T) {
 	limit := 10
 
 	//resultMock
-	mockProduct := []domain.Product{}
+	mockProduct := []domain.ProductObjectResponse{}
 	err := faker.FakeData(&mockProduct)
 	assert.NoError(t, err)
 

@@ -41,7 +41,7 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 
 func TestProductService_GetProducts(t *testing.T) {
 	//resultMock
-	mockProduct := []domain.Product{}
+	mockProduct := []domain.ProductObjectResponse{}
 	err := faker.FakeData(&mockProduct)
 	assert.NoError(t, err)
 

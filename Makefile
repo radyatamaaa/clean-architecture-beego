@@ -13,7 +13,7 @@ unittest:
 	go test -short  ./...
 
 swagger_documentation:
-	swag init -g main.go --output swagger
+	swag init -g ./cmd/api/main.go --output swagger
 
 generate_protoc:
     protoc -I . --go_out=. --go_opt paths=source_relative --go-grpc_out=.  --go-grpc_opt paths=source_relative ./product_service.proto

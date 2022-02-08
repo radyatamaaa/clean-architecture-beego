@@ -2,6 +2,7 @@ package http
 
 import (
 	"clean-architecture-beego/internal/domain"
+	"clean-architecture-beego/pkg/helpers/converter_value"
 	"clean-architecture-beego/pkg/helpers/response"
 	"clean-architecture-beego/pkg/validator"
 	"context"
@@ -22,10 +23,10 @@ func NewProductHandler(useCase domain.ProductUseCase) {
 		ProductUseCase: useCase,
 	}
 	beego.Router("/api/v1/products", pHandler, "get:GetProducts")
-	//beego.Router("/api/v1/product/:id", pHandler, "get:GetProductByID")
+	beego.Router("/api/v1/product/:id", pHandler, "get:GetProductByID")
 	beego.Router("/api/v1/product", pHandler, "post:StoreProduct")
-	//beego.Router("/api/v1/product", pHandler, "put:UpdateProduct")
-	//beego.Router("/api/v1/product/:id", pHandler, "delete:DeleteProduct")
+	beego.Router("/api/v1/product", pHandler, "put:UpdateProduct")
+	beego.Router("/api/v1/product/:id", pHandler, "delete:DeleteProduct")
 }
 
 //func (h *ProductHandler) URLMapping() {
@@ -97,14 +98,61 @@ func (h *ProductHandler) StoreProduct() {
 	return
 }
 
-//func (h *ProductHandler) UpdateProduct() {
-//
-//}
-//
-//func (h *ProductHandler) DeleteProduct() {
-//
-//}
-//
-//func (h *ProductHandler) GetProductByID() {
-//
-//}
+func (h *ProductHandler) UpdateProduct() {
+	var request domain.ProductUpdateRequest
+
+	if err := h.BindJSON(&request); err != nil {
+		h.ErrorResponse(h.Ctx, http.StatusUnprocessableEntity, response.ApiValidationError, err)
+		return
+	}
+	if err := validator.Validate.ValidateStruct(&request); err != nil {
+		h.ErrorResponse(h.Ctx, http.StatusUnprocessableEntity, response.ApiValidationError, err)
+		return
+	}
+	if err := h.ProductUseCase.UpdateProduct(h.Ctx.Request.Context(), request); err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
+			return
+		}
+		h.ErrorResponse(h.Ctx, http.StatusInternalServerError, response.ServerError, err)
+		return
+	}
+	h.Ok(h.Ctx, request)
+	return
+}
+
+func (h *ProductHandler) DeleteProduct() {
+	id := converter_value.StringToInt(h.Ctx.Input.Param("id"))
+
+	err := h.ProductUseCase.DeleteProduct(h.Ctx.Request.Context(), id)
+
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
+			return
+		}
+		h.ErrorResponse(h.Ctx, http.StatusInternalServerError, response.ServerError, err)
+		return
+	}
+
+	h.Ok(h.Ctx, id)
+	return
+}
+
+func (h *ProductHandler) GetProductByID() {
+	id := converter_value.StringToInt(h.Ctx.Input.Param("id"))
+
+	result, err := h.ProductUseCase.GetProductById(h.Ctx.Request.Context(), uint(id))
+
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
+			return
+		}
+		h.ErrorResponse(h.Ctx, http.StatusInternalServerError, response.ServerError, err)
+		return
+	}
+
+	h.Ok(h.Ctx, result)
+	return
+}

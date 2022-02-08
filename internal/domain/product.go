@@ -43,7 +43,7 @@ type ProductStoreRequest struct {
 }
 
 type ProductUpdateRequest struct {
-	Id    uint     `json:"id"`
+	Id    uint     `json:"id" validate:"required"`
 	Name  string   `json:"name"`
 	Price *float64 `json:"price"`
 	Stock *int64   `json:"stock"`
@@ -54,6 +54,7 @@ type ProductUseCase interface {
 	GetProductById(ctx context.Context,id uint) (*ProductObjectResponse, error)
 	SaveProduct(ctx context.Context,body ProductStoreRequest) error
 	UpdateProduct(ctx context.Context,body ProductUpdateRequest) error
+	DeleteProduct(ctx context.Context,id int) error
 }
 
 type ProductRepository interface {

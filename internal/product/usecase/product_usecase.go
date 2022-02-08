@@ -12,6 +12,8 @@ type productUseCase struct {
 	productRepository domain.ProductRepository
 }
 
+
+
 func NewProductUseCase(timeout time.Duration, ur domain.ProductRepository) domain.ProductUseCase {
 	return &productUseCase{
 		productRepository: ur,
@@ -63,4 +65,11 @@ func (p productUseCase) UpdateProduct(c context.Context, body domain.ProductUpda
 		ActiveSale:  false,
 		Stock:       sql.NullInt64{Int64: *body.Stock, Valid: body.Stock != nil},
 	})
+}
+
+func (p productUseCase) DeleteProduct(c context.Context, id int) error {
+	ctx, cancel := context.WithTimeout(c, p.contextTimeout)
+	defer cancel()
+
+	return p.productRepository.Delete(ctx, id)
 }

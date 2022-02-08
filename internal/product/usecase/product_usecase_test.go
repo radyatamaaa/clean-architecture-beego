@@ -178,3 +178,45 @@ func TestProductUseCase_UpdateProduct(t *testing.T) {
 		mockProductRepository.AssertExpectations(t)
 	})
 }
+
+func TestProductUseCase_DeleteProduct(t *testing.T) {
+	//resultMock
+	mockProduct := domain.Product{}
+	err := faker.FakeData(&mockProduct)
+	assert.NoError(t, err)
+
+	id := mockProduct.Id
+
+
+	t.Run("success", func(t *testing.T) {
+		//repositoryMock
+		mockProductRepository := new(_mockProductRepository.Repository)
+
+		mockProductRepository.On("Delete", mock.Anything,
+			mock.AnythingOfType("int")).Return(nil).Once()
+
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+
+		err := u.DeleteProduct(context.TODO(), int(id))
+
+		assert.NoError(t, err)
+
+		mockProductRepository.AssertExpectations(t)
+	})
+
+	t.Run("error-Store-function", func(t *testing.T) {
+		//repositoryMock
+		mockProductRepository := new(_mockProductRepository.Repository)
+
+		mockProductRepository.On("Delete", mock.Anything,
+			mock.AnythingOfType("int")).Return(errors.New("invalid query")).Once()
+
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+
+		err := u.DeleteProduct(context.TODO(), int(id))
+
+		assert.Error(t, err)
+
+		mockProductRepository.AssertExpectations(t)
+	})
+}

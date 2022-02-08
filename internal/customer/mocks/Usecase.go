@@ -80,3 +80,16 @@ func (_m *Usecase) UpdateCustomer(ctx context.Context, body domain.CustomerUpdat
 
 	return r0
 }
+
+func (_m *Usecase) DeleteCustomer(ctx context.Context, id uint) error {
+	ret := _m.Called(ctx, id)
+
+	var r0 error
+	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Error(1)
+	}
+
+	return r0
+}

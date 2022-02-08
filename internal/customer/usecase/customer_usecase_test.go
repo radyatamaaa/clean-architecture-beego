@@ -91,7 +91,7 @@ func TestCustomerUseCase_GetCustomerById(t *testing.T) {
 		mockCustomerRepository := new(_mockCustomerRepository.Repository)
 
 		mockCustomerRepository.On("FindByID", mock.Anything,
-			mock.AnythingOfType("uint")).Return(domain.Product{}, errors.New("invalid query")).Once()
+			mock.AnythingOfType("uint")).Return(domain.Customer{}, errors.New("invalid query")).Once()
 
 		u := usecase.NewCustomerUseCase(timeoutContext, mockCustomerRepository)
 
@@ -166,17 +166,58 @@ func TestCustomerUseCase_UpdateCustomer(t *testing.T) {
 
 	t.Run("error-Store-function", func(t *testing.T) {
 		//repositoryMock
-		mockProductRepository := new(_mockCustomerRepository.Repository)
+		mockCustomerRepository := new(_mockCustomerRepository.Repository)
 
-		mockProductRepository.On("Update", mock.Anything,
+		mockCustomerRepository.On("Update", mock.Anything,
 			mock.AnythingOfType("domain.Customer")).Return(errors.New("invalid query")).Once()
 
-		u := usecase.NewCustomerUseCase(timeoutContext, mockProductRepository)
+		u := usecase.NewCustomerUseCase(timeoutContext, mockCustomerRepository)
 
 		err := u.UpdateCustomer(context.TODO(), mockCustomer)
 
 		assert.Error(t, err)
 
-		mockProductRepository.AssertExpectations(t)
+		mockCustomerRepository.AssertExpectations(t)
+	})
+}
+
+func TestCustomerUseCase_DeleteCustomer(t *testing.T) {
+	//resultMock
+	mockCustomer := domain.Customer{}
+	err := faker.FakeData(&mockCustomer)
+	assert.NoError(t, err)
+
+	id := mockCustomer.Id
+
+	t.Run("success", func(t *testing.T) {
+		//repositoryMock
+		mockCustomerRepository := new(_mockCustomerRepository.Repository)
+
+		mockCustomerRepository.On("Delete", mock.Anything,
+			mock.AnythingOfType("uint")).Return(mockCustomer, nil).Once()
+
+		u := usecase.NewCustomerUseCase(timeoutContext, mockCustomerRepository)
+
+		err := u.DeleteCustomer(context.TODO(), id)
+
+		assert.NoError(t, err)
+
+		mockCustomerRepository.AssertExpectations(t)
+	})
+
+	t.Run("error-Delete-function", func(t *testing.T) {
+		//repositoryMock
+		mockCustomerRepository := new(_mockCustomerRepository.Repository)
+
+		mockCustomerRepository.On("Delete", mock.Anything,
+			mock.AnythingOfType("uint")).Return(domain.Customer{}, errors.New("invalid query")).Once()
+
+		u := usecase.NewCustomerUseCase(timeoutContext, mockCustomerRepository)
+
+		err := u.DeleteCustomer(context.TODO(), id)
+
+		assert.Error(t, err)
+
+		mockCustomerRepository.AssertExpectations(t)
 	})
 }

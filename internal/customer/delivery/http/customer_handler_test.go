@@ -1,9 +1,9 @@
 package http_test
 
 import (
+	customerHttpHandler "clean-architecture-beego/internal/customer/delivery/http"
+	_customerUsecaseMock "clean-architecture-beego/internal/customer/mocks"
 	"clean-architecture-beego/internal/domain"
-	productHttpHandler "clean-architecture-beego/internal/product/delivery/http"
-	_productUsecaseMock "clean-architecture-beego/internal/product/mocks"
 	testHelper "clean-architecture-beego/pkg/helpers/test"
 	"context"
 	"errors"
@@ -19,87 +19,87 @@ import (
 )
 
 var (
-	GroupUrl       = "/api/v1"
-	GetProductsUrl = GroupUrl + "/products"
+	GroupUrl        = "/api/v1"
+	GetCustomersUrl = GroupUrl + "/customers"
 )
 
 func TestProductHandler_LoadHandler(t *testing.T) {
-	mockproductUsecase := new(_productUsecaseMock.Usecase)
+	mockCustomerUsecase := new(_customerUsecaseMock.Usecase)
 
-	productHttpHandler.NewProductHandler(mockproductUsecase)
+	customerHttpHandler.NewCustomerHandler(mockCustomerUsecase)
 
-	mockproductUsecase.AssertExpectations(t)
+	mockCustomerUsecase.AssertExpectations(t)
 }
 
-func TestProductHandler_GetProducts(t *testing.T) {
+func TestCustomerHandler_GetCustomers(t *testing.T) {
 	//requestMock
 	offset := 0
 	limit := 10
 
 	//resultMock
-	mockProduct := []domain.Product{}
-	err := faker.FakeData(&mockProduct)
+	mockCustomer := []domain.Customer{}
+	err := faker.FakeData(&mockCustomer)
 	assert.NoError(t, err)
 
 	t.Run("success", func(t *testing.T) {
 		//usecaseMock
-		mockproductUsecase := new(_productUsecaseMock.Usecase)
+		mockCostumerUsecase := new(_customerUsecaseMock.Usecase)
 
-		mockproductUsecase.On("GetProducts", mock.Anything,
+		mockCostumerUsecase.On("GetCustomers", mock.Anything,
 			mock.AnythingOfType("int"),
 			mock.AnythingOfType("int")).
-			Return(mockProduct, nil)
+			Return(mockCustomer, nil)
 
 		queryparam := "?offset=" + strconv.Itoa(offset) +
 			"&limit=" + strconv.Itoa(limit)
-		url := GetProductsUrl + queryparam
+		url := GetCustomersUrl + queryparam
 		req, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 		assert.NoError(t, err)
 		req.WithContext(context.Background())
 
 		rec := httptest.NewRecorder()
 
-		handler := productHttpHandler.ProductHandler{
-			ProductUseCase: mockproductUsecase,
+		handler := customerHttpHandler.CustomerHandler{
+			CustomerUseCase: mockCostumerUsecase,
 		}
 		testHelper.PrepareHandler(t, &handler.Controller, req, rec)
 		handler.Prepare()
 
-		handler.GetProducts()
+		handler.GetCustomers()
 
 		assert.Equal(t, http.StatusOK, rec.Code)
-		mockproductUsecase.AssertExpectations(t)
+		mockCostumerUsecase.AssertExpectations(t)
 
 	})
 
-	t.Run("error-GetProducts-function", func(t *testing.T) {
+	t.Run("error-GetCustomers-function", func(t *testing.T) {
 		//usecaseMock
-		mockproductUsecase := new(_productUsecaseMock.Usecase)
+		mockCostumerUsecase := new(_customerUsecaseMock.Usecase)
 
-		mockproductUsecase.On("GetProducts", mock.Anything,
+		mockCostumerUsecase.On("GetCustomers", mock.Anything,
 			mock.AnythingOfType("int"),
 			mock.AnythingOfType("int")).
-			Return(mockProduct, errors.New("Internal Server Error"))
+			Return(mockCustomer, errors.New("Internal Server Error"))
 
 		queryparam := "?offset=" + strconv.Itoa(offset) +
 			"&limit=" + strconv.Itoa(limit)
-		url := GetProductsUrl + queryparam
+		url := GetCustomersUrl + queryparam
 		req, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
 		assert.NoError(t, err)
 		req.WithContext(context.Background())
 
 		rec := httptest.NewRecorder()
 
-		handler := productHttpHandler.ProductHandler{
-			ProductUseCase: mockproductUsecase,
+		handler := customerHttpHandler.CustomerHandler{
+			CustomerUseCase: mockCostumerUsecase,
 		}
 		testHelper.PrepareHandler(t, &handler.Controller, req, rec)
 		handler.Prepare()
 
-		handler.GetProducts()
+		handler.GetCustomers()
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		mockproductUsecase.AssertExpectations(t)
+		mockCostumerUsecase.AssertExpectations(t)
 
 	})
 

@@ -39,5 +39,5 @@ func (p customerRepository) Store(ctx context.Context, customer domain.Customer)
 }
 
 func (p customerRepository) Delete(ctx context.Context, id uint) error {
-	return p.DB.WithContext(ctx).Exec("delete from products where id =?", id).Error
+	return p.DB.WithContext(ctx).Exec("delete from customers where id =?", id).Error
 }

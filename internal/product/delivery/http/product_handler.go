@@ -22,10 +22,10 @@ func NewProductHandler(useCase domain.ProductUseCase) {
 		ProductUseCase: useCase,
 	}
 	beego.Router("/api/v1/products", pHandler, "get:GetProducts")
-	beego.Router("/api/v1/product/:id", pHandler, "get:GetProductByID")
+	//beego.Router("/api/v1/product/:id", pHandler, "get:GetProductByID")
 	beego.Router("/api/v1/product", pHandler, "post:StoreProduct")
-	beego.Router("/api/v1/product", pHandler, "put:UpdateProduct")
-	beego.Router("/api/v1/product/:id", pHandler, "delete:DeleteProduct")
+	//beego.Router("/api/v1/product", pHandler, "put:UpdateProduct")
+	//beego.Router("/api/v1/product/:id", pHandler, "delete:DeleteProduct")
 }
 
 //func (h *ProductHandler) URLMapping() {
@@ -97,14 +97,14 @@ func (h *ProductHandler) StoreProduct() {
 	return
 }
 
-func (h *ProductHandler) UpdateProduct() {
-
-}
-
-func (h *ProductHandler) DeleteProduct() {
-
-}
-
-func (h *ProductHandler) GetProductByID() {
-
-}
+//func (h *ProductHandler) UpdateProduct() {
+//
+//}
+//
+//func (h *ProductHandler) DeleteProduct() {
+//
+//}
+//
+//func (h *ProductHandler) GetProductByID() {
+//
+//}

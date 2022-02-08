@@ -104,3 +104,61 @@ func TestCustomerHandler_GetCustomers(t *testing.T) {
 	})
 
 }
+
+func TestCustomerHandler_GetCustomerById(t *testing.T) {
+	//param
+	idParam := 1
+
+	//resultMock
+	mockCustomer := &domain.Customer{}
+	err := faker.FakeData(&mockCustomer)
+	assert.NoError(t, err)
+
+	t.Run("success", func(t *testing.T) {
+		//usecaseMock
+		mockCostumerUsecase := new(_customerUsecaseMock.Usecase)
+
+		mockCostumerUsecase.On("GetCustomerById", mock.Anything,
+			mock.AnythingOfType("uint")).
+			Return(mockCustomer, nil)
+
+		param := "/" + strconv.Itoa(idParam)
+		url := GetCustomersUrl + param
+		req, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
+		assert.NoError(t, err)
+		req.WithContext(context.Background())
+
+		rec := httptest.NewRecorder()
+
+		handler := customerHttpHandler.CustomerHandler{
+			CustomerUseCase: mockCostumerUsecase,
+		}
+		testHelper.PrepareHandler(t, &handler.Controller, req, rec)
+		handler.Prepare()
+
+		handler.GetCustomerByID()
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		mockCostumerUsecase.AssertExpectations(t)
+
+	})
+
+	t.Run("error-GetCustomerById-function", func(t *testing.T) {
+		//param
+		falseParam := "string"
+
+		//usecaseMock
+		mockCostumerUsecase := new(_customerUsecaseMock.Usecase)
+
+		mockCostumerUsecase.On("GetCustomerById", mock.Anything,
+			mock.AnythingOfType("uint")).
+			Return(mockCustomer, errors.New("Invalid Query"))
+
+		param := "/" + falseParam
+		url := GetCustomersUrl + param
+		req, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
+		assert.NoError(t, err)
+		req.WithContext(context.Background())
+
+	})
+}

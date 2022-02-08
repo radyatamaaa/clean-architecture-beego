@@ -194,7 +194,7 @@ func TestCustomerUseCase_DeleteCustomer(t *testing.T) {
 		mockCustomerRepository := new(_mockCustomerRepository.Repository)
 
 		mockCustomerRepository.On("Delete", mock.Anything,
-			mock.AnythingOfType("uint")).Return(mockCustomer, nil).Once()
+			mock.AnythingOfType("uint")).Return(nil).Once()
 
 		u := usecase.NewCustomerUseCase(timeoutContext, mockCustomerRepository)
 
@@ -210,7 +210,7 @@ func TestCustomerUseCase_DeleteCustomer(t *testing.T) {
 		mockCustomerRepository := new(_mockCustomerRepository.Repository)
 
 		mockCustomerRepository.On("Delete", mock.Anything,
-			mock.AnythingOfType("uint")).Return(domain.Customer{}, errors.New("invalid query")).Once()
+			mock.AnythingOfType("uint")).Return(errors.New("invalid query")).Once()
 
 		u := usecase.NewCustomerUseCase(timeoutContext, mockCustomerRepository)
 

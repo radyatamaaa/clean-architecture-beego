@@ -1,0 +1,72 @@
+basePath: /api
+definitions:
+  response.ApiResponse:
+    properties:
+      code:
+        type: string
+      data: {}
+      errors:
+        items:
+          $ref: '#/definitions/response.Errors'
+        type: array
+      message:
+        type: string
+    type: object
+  response.Errors:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@kreditplus.com
+    name: Kredit Plus
+    url: https://kreditplus.com
+  description: api "sample using beego framework"
+  termsOfService: https://dev-kreditmu.kreditplus.com/terms
+  title: BEE SAMPLE API
+  version: v1
+paths:
+  /v1/products:
+    get:
+      parameters:
+      - description: page size
+        in: query
+        name: pageSize
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ApiResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ApiResponse'
+            - properties:
+                errors:
+                  items:
+                    $ref: '#/definitions/response.Errors'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ApiResponse'
+      summary: Get all products
+      tags:
+      - Product
+swagger: "2.0"

@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"clean-architecture-beego/database"
 	"clean-architecture-beego/internal/domain"
+	"clean-architecture-beego/pkg/database"
 	"context"
 	"gorm.io/gorm"
 )
@@ -20,8 +20,7 @@ func NewProductRepository(db *gorm.DB) domain.ProductRepository {
 func (p productRepository) Fetch(ctx context.Context,limit int, offset int) ([]domain.Product, error) {
 	var entities []domain.Product
 	paginator := database.NewPaginator(p.DB, offset, limit, &entities)
-	err := paginator.Find(ctx).Error
-	return entities, err
+	return entities, paginator.Find(ctx).Error
 }
 
 func (p productRepository) FindByID(ctx context.Context,id uint) (domain.Product, error) {

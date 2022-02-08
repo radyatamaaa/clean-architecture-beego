@@ -18,29 +18,6 @@ var (
 
 	ErrForbidden = errors.New("you don't have permission to access this resource")
 )
-func (r *Response) MappingResponseSuccess(message string, data interface{}) {
-	r.StatusCode = http.StatusOK
-	r.Status = http.StatusText(r.StatusCode)
-	r.Msg = message
-	r.Data = data
-	r.Errors = nil
-}
-
-func (r *Response) MappingResponseError(statusCode int, message string, error interface{}) {
-	r.StatusCode = statusCode
-	r.Status = http.StatusText(r.StatusCode)
-	r.Msg = message
-	r.Data = nil
-	r.Errors = error
-}
-
-func (r *Response) MappingResponseErrorValidation(statusCode int, message string, error interface{}) {
-	r.StatusCode = statusCode
-	r.Status = http.StatusText(r.StatusCode)
-	r.Msg = message
-	r.Data = nil
-	r.Errors = error
-}
 
 func GetStatusCode(err error) int {
 	if err == nil {

@@ -1,21 +1,14 @@
 appname = clean-architecture-beego
 httpport = 8080
-runmode = prod
+hostRpc= 127.0.0.1
+portRpc= 9090
+runmode = dev
 autorender = false
 copyrequestbody = true
 EnableDocs = true
-dbConnUrl = "sqlserver://adins:4d1n52007@10.0.0.198:1433?database=beego_sample&charset=utf8mb4&parseTime=True&loc=Local"
-timeout = 15
-httpportGRPC = 9090
-JWTSecret = "secret"
+dbConnUrl = ""
 
 dbdebug = true
-sqlserveruser = "adins"
-sqlserverpass = "4d1n52007"
-sqlserverurls = ""
-sqlserverport = 1433
-sqlserverdb   = ""
-sqlserveroptions   = "charset=utf8mb4&parseTime=True&loc=Local"
 sqlservermaxopenconn = 25
 sqlservermaxidleconn = 25
 sqlservermaxlifetimeconn = 300

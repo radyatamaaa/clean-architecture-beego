@@ -37,9 +37,9 @@ type ProductObjectResponse struct {
 }
 
 type ProductStoreRequest struct {
-	Name  string   `json:"name"`
-	Price *float64 `json:"price"`
-	Stock *int64   `json:"stock"`
+	Name  string   `json:"name" validate:"required"`
+	Price *float64 `json:"price" validate:"required"`
+	Stock *int64   `json:"stock" validate:"required"`
 }
 
 type ProductUpdateRequest struct {
@@ -50,8 +50,8 @@ type ProductUpdateRequest struct {
 }
 
 type ProductUseCase interface {
-	GetProducts(ctx context.Context,limit, offset int) ([]Product, error)
-	GetProductById(ctx context.Context,id uint) (*Product, error)
+	GetProducts(ctx context.Context,limit, offset int) ([]ProductObjectResponse, error)
+	GetProductById(ctx context.Context,id uint) (*ProductObjectResponse, error)
 	SaveProduct(ctx context.Context,body ProductStoreRequest) error
 	UpdateProduct(ctx context.Context,body ProductUpdateRequest) error
 }

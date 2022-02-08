@@ -9,4 +9,4 @@ bin/
 logs/
 .idea
 conf/app.conf
-clean-architecture-beego.exe
+*.exe

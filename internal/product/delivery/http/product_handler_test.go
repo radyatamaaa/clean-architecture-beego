@@ -5,6 +5,7 @@ import (
 	productHttpHandler "clean-architecture-beego/internal/product/delivery/http"
 	_productUsecaseMock "clean-architecture-beego/internal/product/mocks"
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/bxcodec/faker"
 	"github.com/stretchr/testify/assert"
@@ -20,6 +21,7 @@ import (
 var (
 	GroupUrl = "/api/v1"
 	GetProductsUrl           = GroupUrl + "/products"
+	StoreProductUrl           = GroupUrl + "/products"
 )
 
 func TestProductHandler_LoadHandler(t *testing.T) {
@@ -98,6 +100,77 @@ func TestProductHandler_GetProducts(t *testing.T) {
 		handler.Prepare()
 
 		handler.GetProducts()
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		mockproductUsecase.AssertExpectations(t)
+
+	})
+
+}
+
+func TestProductHandler_StoreProduct(t *testing.T) {
+	//requestMock
+	request := domain.ProductStoreRequest{}
+	err := faker.FakeData(&request)
+	assert.NoError(t, err)
+
+	//resultMock
+
+
+	t.Run("success", func(t *testing.T) {
+		//usecaseMock
+		mockproductUsecase := new(_productUsecaseMock.Usecase)
+
+		mockproductUsecase.On("SaveProduct", mock.Anything,
+			mock.AnythingOfType("domain.ProductStoreRequest")).
+			Return( nil)
+
+		j, err := json.Marshal(request)
+		assert.NoError(t, err)
+		url := StoreProductUrl
+		req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(j)))
+		assert.NoError(t, err)
+		req.WithContext(context.Background())
+
+		rec := httptest.NewRecorder()
+
+		handler := productHttpHandler.ProductHandler{
+			ProductUseCase: mockproductUsecase,
+		}
+		testHelper.PrepareHandler(t,&handler.Controller,req,rec)
+		handler.Prepare()
+
+		handler.StoreProduct()
+
+		assert.Equal(t, http.StatusOK, rec.Code)
+		mockproductUsecase.AssertExpectations(t)
+
+	})
+
+	t.Run("error-SaveProduct-function", func(t *testing.T) {
+		//usecaseMock
+		mockproductUsecase := new(_productUsecaseMock.Usecase)
+
+		mockproductUsecase.On("SaveProduct", mock.Anything,
+			mock.AnythingOfType("domain.ProductStoreRequest")).
+			Return( errors.New("Internel Server Error"))
+
+		j, err := json.Marshal(request)
+		assert.NoError(t, err)
+		url := StoreProductUrl
+		req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(string(j)))
+		assert.NoError(t, err)
+		req.WithContext(context.Background())
+
+		rec := httptest.NewRecorder()
+
+		handler := productHttpHandler.ProductHandler{
+			ProductUseCase: mockproductUsecase,
+		}
+		testHelper.PrepareHandler(t,&handler.Controller,req,rec)
+		handler.Prepare()
+
+		handler.StoreProduct()
 
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 		mockproductUsecase.AssertExpectations(t)

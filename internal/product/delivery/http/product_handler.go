@@ -48,7 +48,6 @@ func (h *ProductHandler) URLMapping() {
 // @Failure 500 {object} response.ApiResponse
 // @Router /v1/products [get]
 func (h *ProductHandler) GetProducts() {
-
 	// default
 	var pageSize = 10
 	var page = 0

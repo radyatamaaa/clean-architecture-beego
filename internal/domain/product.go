@@ -5,15 +5,23 @@ import (
 	"database/sql"
 	"time"
 )
-
-type Product struct {
+type ProductTest struct {
 	Id          uint            `gorm:"primarykey;autoIncrement:true"`
 	ProductName string          `gorm:"type:varchar(50);column:product_name"`
-	Price       sql.NullFloat64 `gorm:"column:product_price"`
+	Price       float64 `gorm:"column:product_price"`
 	ActiveSale  bool            `gorm:"column:active_sale"`
-	Stock       sql.NullInt64   `gorm:"column:stock"`
+	Stock       int   `gorm:"column:stock"`
 	CreatedAt   time.Time       `gorm:"column:created_at"`
 	UpdatedAt   time.Time       `gorm:"column:updated_at"`
+}
+type Product struct {
+	Id          uint            `json:"id" gorm:"primarykey;autoIncrement:true"`
+	ProductName string          `json:"product_name" gorm:"type:varchar(50);column:product_name"`
+	Price       sql.NullFloat64 `json:"product_price" gorm:"column:product_price"`
+	ActiveSale  bool            `json:"active_sale" gorm:"column:active_sale"`
+	Stock       sql.NullInt64   `json:"stock" gorm:"column:stock"`
+	CreatedAt   time.Time       `json:"created_at" gorm:"column:created_at"`
+	UpdatedAt   time.Time       `json:"updated_at" gorm:"column:updated_at"`
 }
 
 func (p *Product) TableName() string {
@@ -73,5 +81,20 @@ func (p Product) ToProductResponse() ProductObjectResponse {
 		Price:       price,
 		ActiveSale:  p.ActiveSale,
 		Stock:       stock,
+	}
+}
+
+func (p ProductTest) ToProduct() Product {
+	return Product{
+		Id:          p.Id,
+		ProductName: p.ProductName,
+		Price:       sql.NullFloat64{Float64: p.Price},
+		ActiveSale:  false,
+		Stock:       sql.NullInt64{
+			Int64: int64(p.Stock),
+			Valid: false,
+		},
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 }

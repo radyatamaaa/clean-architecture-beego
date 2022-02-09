@@ -9,6 +9,7 @@ require (
 	github.com/bxcodec/faker v2.0.1+incompatible
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/golang-jwt/jwt/v4 v4.2.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4
 	github.com/joho/godotenv v1.4.0
 	github.com/prometheus/common v0.26.0
 	github.com/stretchr/testify v1.7.0

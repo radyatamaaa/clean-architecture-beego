@@ -1,6 +1,7 @@
 package main
 
 import (
+	"clean-architecture-beego/internal/middlewares"
 	productGrpc "clean-architecture-beego/internal/product/delivery/grpc"
 	productRepo "clean-architecture-beego/internal/product/repository"
 	productUcase "clean-architecture-beego/internal/product/usecase"
@@ -8,6 +9,10 @@ import (
 	"fmt"
 	"github.com/beego/beego/v2/core/logs"
 	beego "github.com/beego/beego/v2/server/web"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"google.golang.org/grpc"
 	"net"
 	"time"
@@ -49,7 +54,18 @@ func main() {
 	if listen, err := net.Listen("tcp", fmt.Sprintf("%s:%s", grpcHost, httpPortGrpc)); err != nil {
 		logs.Critical("Could not listen @ %v :: %v", httpPortGrpc, err)
 	} else {
-		grpcServer := grpc.NewServer()
+		grpcServer := grpc.NewServer(
+			grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_ctxtags.StreamServerInterceptor(),
+			grpc_auth.StreamServerInterceptor(middlewares.AuthFunc),
+			grpc_recovery.StreamServerInterceptor(),
+		)),
+			grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+				grpc_ctxtags.UnaryServerInterceptor(),
+				grpc_auth.UnaryServerInterceptor(middlewares.AuthFunc),
+				grpc_recovery.UnaryServerInterceptor(),
+			)),
+			)
 
 		//register Services
 		productRepository := productRepo.NewProductRepository(db)

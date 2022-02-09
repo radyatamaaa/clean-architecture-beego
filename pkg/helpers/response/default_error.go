@@ -14,3 +14,8 @@ func (c *ErrorController) Error404() {
 	c.ErrorResponse(c.Ctx, http.StatusNotFound, ResourceNotFoundError, nil)
 	return
 }
+
+func (c *ErrorController) Error500() {
+	c.ErrorResponse(c.Ctx, http.StatusInternalServerError, ServerError, nil)
+	return
+}

@@ -61,6 +61,12 @@ func DateTimeNullableToDateTime(value *time.Time) time.Time {
 func IntToIntNullable(value int) *int {
 	return &value
 }
+func IntNullableToInt64(value *int64) int64 {
+	if value == nil {
+		return 0
+	}
+	return *value
+}
 func IntNullableToInt(value *int) int {
 	if value == nil {
 		return 0

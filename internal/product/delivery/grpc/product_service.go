@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"clean-architecture-beego/internal/domain"
+	"clean-architecture-beego/pkg/helpers/converter_value"
 	"context"
 	"google.golang.org/protobuf/runtime/protoimpl"
 	"strconv"
@@ -48,7 +49,7 @@ func (p ProductService) GetProducts(ctx context.Context, params *GetProductsPara
 
 }
 
-func (v *ProductService)mappingResultGetProducts(r []domain.Product) []*GetProductsDto {
+func (v *ProductService)mappingResultGetProducts(r []domain.ProductObjectResponse) []*GetProductsDto {
 	res := make([]*GetProductsDto,len(r))
 	for i := range r {
 		res[i] = &GetProductsDto{
@@ -57,11 +58,9 @@ func (v *ProductService)mappingResultGetProducts(r []domain.Product) []*GetProdu
 			unknownFields: nil,
 			Id:           int32(r[i].Id) ,
 			ProductName:   r[i].ProductName,
-			Price:       float32(r[i].Price.Float64)  ,
+			Price:       float32(converter_value.FloatNUllableToFloat(r[i].Price))  ,
 			ActiveSale:    r[i].ActiveSale,
-			Stock:       int32(r[i].Stock.Int64),
-			CreatedAt:     r[i].CreatedAt.String(),
-			UpdatedAt:     r[i].UpdatedAt.String(),
+			Stock:       int32(converter_value.IntNullableToInt64(r[i].Stock)),
 		}
 	}
 

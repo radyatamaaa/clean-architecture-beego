@@ -18,17 +18,26 @@ func NewCustomerUseCase(timeout time.Duration, ur domain.CustomerRepository) dom
 	}
 }
 
-func (p customerUseCase) GetCustomers(c context.Context, limit, offset int) ([]domain.Customer, error) {
+func (p customerUseCase) GetCustomers(c context.Context, limit, offset int) ([]domain.CustomerObjectResponse, error) {
+	var customerList []domain.CustomerObjectResponse
 	ctx, cancel := context.WithTimeout(c, p.contextTimeout)
 	defer cancel()
-	return p.customerRepository.Fetch(ctx, limit, offset)
+	if result, err := p.customerRepository.Fetch(ctx, limit, offset); err != nil {
+		return nil, err
+	} else {
+		for _, v := range result {
+			customerList = append(customerList, v.ToCustomerResponse())
+		}
+	}
+	return customerList, nil
 }
 
-func (p customerUseCase) GetCustomerById(c context.Context, id uint) (*domain.Customer, error) {
+func (p customerUseCase) GetCustomerById(c context.Context, id uint) (*domain.CustomerObjectResponse, error) {
 	ctx, cancel := context.WithTimeout(c, p.contextTimeout)
 	defer cancel()
 	result, err := p.customerRepository.FindByID(ctx, id)
-	return &result, err
+	product := result.ToCustomerResponse()
+	return &product, err
 }
 
 func (p customerUseCase) SaveCustomer(c context.Context, body domain.CustomerStoreRequest) error {

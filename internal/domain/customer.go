@@ -29,14 +29,7 @@ func (c *Customer) TableName() string {
 	return "customers"
 }
 
-type CustomerStoreRequest struct {
-	CustomerName string `json:"customer_name"`
-	Phone        string `json:"phone"`
-	Email        string `json:"email"`
-	Address      string `json:"address"`
-}
-
-type CustomerUpdateRequest struct {
+type CustomerObjectResponse struct {
 	Id           uint   `json:"id"`
 	CustomerName string `json:"customer_name"`
 	Phone        string `json:"phone"`
@@ -44,9 +37,24 @@ type CustomerUpdateRequest struct {
 	Address      string `json:"address"`
 }
 
+type CustomerStoreRequest struct {
+	CustomerName string `json:"customer_name" validate:"required"`
+	Phone        string `json:"phone" validate:"required"`
+	Email        string `json:"email" validate:"required"`
+	Address      string `json:"address" validate:"required"`
+}
+
+type CustomerUpdateRequest struct {
+	Id           uint   `json:"id" validate:"required"`
+	CustomerName string `json:"customer_name"`
+	Phone        string `json:"phone"`
+	Email        string `json:"email"`
+	Address      string `json:"address"`
+}
+
 type CustomerUseCase interface {
-	GetCustomers(ctx context.Context, limit, offset int) ([]Customer, error)
-	GetCustomerById(ctx context.Context, id uint) (*Customer, error)
+	GetCustomers(ctx context.Context, limit, offset int) ([]CustomerObjectResponse, error)
+	GetCustomerById(ctx context.Context, id uint) (*CustomerObjectResponse, error)
 	SaveCustomer(ctx context.Context, body CustomerStoreRequest) error
 	UpdateCustomer(ctx context.Context, body CustomerUpdateRequest) error
 	DeleteCustomer(ctx context.Context, id uint) error
@@ -58,6 +66,17 @@ type CustomerRepository interface {
 	Update(ctx context.Context, product Customer) error
 	Store(ctx context.Context, product Customer) error
 	Delete(ctx context.Context, id uint) error
+}
+
+func (p Customer) ToCustomerResponse() CustomerObjectResponse {
+
+	return CustomerObjectResponse{
+		Id:           p.Id,
+		CustomerName: p.CustomerName,
+		Phone:        p.Phone,
+		Email:        p.Email,
+		Address:      p.Address,
+	}
 }
 
 func (p CustomerTest) ToCustomer() Customer {

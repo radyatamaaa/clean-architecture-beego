@@ -2,8 +2,12 @@ package http
 
 import (
 	"clean-architecture-beego/internal/domain"
+	"clean-architecture-beego/pkg/helpers/converter_value"
+	"clean-architecture-beego/pkg/helpers/response"
+	"clean-architecture-beego/pkg/validator"
 	"context"
-	"encoding/json"
+	"errors"
+	"net/http"
 	"strconv"
 
 	beego "github.com/beego/beego/v2/server/web"
@@ -11,6 +15,7 @@ import (
 
 type CustomerHandler struct {
 	beego.Controller
+	response.ApiResponse
 	CustomerUseCase domain.CustomerUseCase
 }
 
@@ -28,175 +33,114 @@ func NewCustomerHandler(useCase domain.CustomerUseCase) {
 
 func (h *CustomerHandler) GetCustomers() {
 
-	ctx := h.Ctx.Request.Context()
-	if ctx == nil {
-		ctx = context.Background()
+	var pageSize = 10
+	var page = 0
+
+	if parse, err := strconv.Atoi(h.Ctx.Input.Query("pageSize")); err == nil {
+		pageSize = parse
+	}
+	if parse, err := strconv.Atoi(h.Ctx.Input.Query("page")); err == nil {
+		page = parse
 	}
 
-	// default
-	var limit = 10
-	var offset = 0
+	result, err := h.CustomerUseCase.GetCustomers(h.Ctx.Request.Context(), pageSize, page)
 
-	limitParam := h.Ctx.Input.Param("limit")
-	offsetParam := h.Ctx.Input.Param("offset")
-
-	if parse, err := strconv.Atoi(limitParam); err == nil {
-		limit = parse
-	}
-	if parse, err := strconv.Atoi(offsetParam); err == nil {
-		offset = parse
-	}
-	result, err := h.CustomerUseCase.GetCustomers(ctx, limit, offset)
 	if err != nil {
-		h.Data["json"] = beego.M{
-			"message": "internal server error",
-			"error":   err,
-		}
-		if err := h.ServeJSON(); err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
 		}
+		h.ErrorResponse(h.Ctx, http.StatusInternalServerError, response.ServerError, err)
 		return
 	}
-	h.Data["json"] = beego.M{
-		"message": "success",
-		"error":   nil,
-		"data":    result,
-	}
-	if err := h.ServeJSON(); err != nil {
-		return
-	}
+
+	h.Ok(h.Ctx, result)
 	return
 }
 
 func (h *CustomerHandler) StoreCustomer() {
 
-	var body domain.CustomerStoreRequest
+	var request domain.CustomerStoreRequest
 
-	ctx := h.Ctx.Request.Context()
-	if ctx == nil {
-		ctx = context.Background()
+	if err := h.BindJSON(&request); err != nil {
+		h.ErrorResponse(h.Ctx, http.StatusUnprocessableEntity, response.ApiValidationError, err)
+		return
 	}
-
-	json.Unmarshal(h.Ctx.Input.RequestBody, &body)
-	err := h.CustomerUseCase.SaveCustomer(ctx, body)
-	if err != nil {
-		h.Data["json"] = beego.M{
-			"message": "internal server error",
-			"error":   err,
-		}
-		if err := h.ServeJSON(); err != nil {
+	if err := validator.Validate.ValidateStruct(&request); err != nil {
+		h.ErrorResponse(h.Ctx, http.StatusUnprocessableEntity, response.ApiValidationError, err)
+		return
+	}
+	if err := h.CustomerUseCase.SaveCustomer(h.Ctx.Request.Context(), request); err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
 		}
+		h.ErrorResponse(h.Ctx, http.StatusInternalServerError, response.ServerError, err)
 		return
 	}
-	h.Data["json"] = beego.M{
-		"message": "success",
-		"error":   nil,
-	}
-	if err := h.ServeJSON(); err != nil {
-		return
-	}
+	h.Ok(h.Ctx, request)
 	return
 
 }
 
 func (h *CustomerHandler) UpdateCustomer() {
-	var body domain.CustomerUpdateRequest
+	var request domain.CustomerUpdateRequest
 
-	ctx := h.Ctx.Request.Context()
-	if ctx == nil {
-		ctx = context.Background()
+	if err := h.BindJSON(&request); err != nil {
+		h.ErrorResponse(h.Ctx, http.StatusUnprocessableEntity, response.ApiValidationError, err)
+		return
 	}
-
-	json.Unmarshal(h.Ctx.Input.RequestBody, &body)
-	err := h.CustomerUseCase.UpdateCustomer(ctx, body)
-	if err != nil {
-		h.Data["json"] = beego.M{
-			"message": "internal server error",
-			"error":   err,
-		}
-		if err := h.ServeJSON(); err != nil {
+	if err := validator.Validate.ValidateStruct(&request); err != nil {
+		h.ErrorResponse(h.Ctx, http.StatusUnprocessableEntity, response.ApiValidationError, err)
+		return
+	}
+	if err := h.CustomerUseCase.UpdateCustomer(h.Ctx.Request.Context(), request); err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
 		}
+		h.ErrorResponse(h.Ctx, http.StatusInternalServerError, response.ServerError, err)
 		return
 	}
-	h.Data["json"] = beego.M{
-		"message": "success",
-		"error":   nil,
-	}
-	if err := h.ServeJSON(); err != nil {
-		return
-	}
+	h.Ok(h.Ctx, request)
 	return
 }
 
 func (h *CustomerHandler) DeleteCustomer() {
 
-	ctx := h.Ctx.Request.Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	idParam := h.Ctx.Input.Param(":id")
-	var id uint
+	id := converter_value.StringToInt(h.Ctx.Input.Param("id"))
 
-	if parse, err := strconv.ParseUint(idParam, 2, 32); err == nil {
-		id = uint(parse)
-	}
+	err := h.CustomerUseCase.DeleteCustomer(h.Ctx.Request.Context(), uint(id))
 
-	err := h.CustomerUseCase.DeleteCustomer(ctx, id)
 	if err != nil {
-		h.Data["json"] = beego.M{
-			"message": "internal server error",
-			"error":   err,
-		}
-		if err := h.ServeJSON(); err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
 		}
+		h.ErrorResponse(h.Ctx, http.StatusInternalServerError, response.ServerError, err)
 		return
 	}
-	h.Data["json"] = beego.M{
-		"message": "success",
-		"error":   nil,
-	}
-	if err := h.ServeJSON(); err != nil {
-		return
-	}
+
+	h.Ok(h.Ctx, id)
 	return
 
 }
 
 func (h *CustomerHandler) GetCustomerByID() {
 
-	ctx := h.Ctx.Request.Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
+	id := converter_value.StringToInt(h.Ctx.Input.Param("id"))
 
-	idParam := h.Ctx.Input.Param(":id")
-	var id uint
+	result, err := h.CustomerUseCase.GetCustomerById(h.Ctx.Request.Context(), uint(id))
 
-	if parse, err := strconv.ParseUint(idParam, 2, 32); err == nil {
-		id = uint(parse)
-	}
-
-	result, err := h.CustomerUseCase.GetCustomerById(ctx, id)
 	if err != nil {
-		h.Data["json"] = beego.M{
-			"message": "internal server error",
-			"error":   err,
-		}
-		if err := h.ServeJSON(); err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
 		}
+		h.ErrorResponse(h.Ctx, http.StatusInternalServerError, response.ServerError, err)
 		return
 	}
-	h.Data["json"] = beego.M{
-		"message": "success",
-		"error":   nil,
-		"data":    result,
-	}
-	if err := h.ServeJSON(); err != nil {
-		return
-	}
+
+	h.Ok(h.Ctx, result)
 	return
 }

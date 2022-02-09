@@ -132,7 +132,7 @@ func (p CustomerService) DeleteCustomer(ctx context.Context, params *GetCustomer
 	return result, nil
 }
 
-func (v *CustomerService) mappingResultGetCustomers(r []domain.Customer) []*GetCustomersDto {
+func (v *CustomerService) mappingResultGetCustomers(r []domain.CustomerObjectResponse) []*GetCustomersDto {
 	res := make([]*GetCustomersDto, len(r))
 	for i := range r {
 		res[i] = &GetCustomersDto{
@@ -144,15 +144,13 @@ func (v *CustomerService) mappingResultGetCustomers(r []domain.Customer) []*GetC
 			Phone:         r[i].Phone,
 			Email:         r[i].Email,
 			Address:       r[i].Address,
-			CreatedAt:     r[i].CreatedAt.String(),
-			UpdatedAt:     r[i].UpdatedAt.String(),
 		}
 	}
 
 	return res
 }
 
-func (v *CustomerService) mappingResultGetCustomerById(r *domain.Customer) *GetCustomersDto {
+func (v *CustomerService) mappingResultGetCustomerById(r *domain.CustomerObjectResponse) *GetCustomersDto {
 	res := &GetCustomersDto{
 		state:         protoimpl.MessageState{},
 		sizeCache:     0,
@@ -162,8 +160,6 @@ func (v *CustomerService) mappingResultGetCustomerById(r *domain.Customer) *GetC
 		Phone:         r.Phone,
 		Email:         r.Email,
 		Address:       r.Address,
-		CreatedAt:     r.CreatedAt.String(),
-		UpdatedAt:     r.UpdatedAt.String(),
 	}
 
 	return res

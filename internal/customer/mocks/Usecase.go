@@ -11,15 +11,15 @@ type Usecase struct {
 	mock.Mock
 }
 
-func (_m *Usecase) GetCustomers(ctx context.Context, limit, offset int) ([]domain.Customer, error) {
+func (_m *Usecase) GetCustomers(ctx context.Context, limit, offset int) ([]domain.CustomerObjectResponse, error) {
 	ret := _m.Called(ctx, limit, offset)
 
-	var r0 []domain.Customer
-	if rf, ok := ret.Get(0).(func(context.Context, int, int) []domain.Customer); ok {
+	var r0 []domain.CustomerObjectResponse
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) []domain.CustomerObjectResponse); ok {
 		r0 = rf(ctx, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]domain.Customer)
+			r0 = ret.Get(0).([]domain.CustomerObjectResponse)
 		}
 	}
 
@@ -33,15 +33,15 @@ func (_m *Usecase) GetCustomers(ctx context.Context, limit, offset int) ([]domai
 	return r0, r1
 }
 
-func (_m *Usecase) GetCustomerById(ctx context.Context, id uint) (*domain.Customer, error) {
+func (_m *Usecase) GetCustomerById(ctx context.Context, id uint) (*domain.CustomerObjectResponse, error) {
 	ret := _m.Called(ctx, id)
 
-	var r0 *domain.Customer
-	if rf, ok := ret.Get(0).(func(context.Context, uint) *domain.Customer); ok {
+	var r0 *domain.CustomerObjectResponse
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *domain.CustomerObjectResponse); ok {
 		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*domain.Customer)
+			r0 = ret.Get(0).(*domain.CustomerObjectResponse)
 		}
 	}
 

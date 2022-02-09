@@ -19,6 +19,7 @@ const (
 	ResourceNotFoundError = "RESOURCE_NOT_FOUND"
 	ServerError           = "SERVER_ERROR"
 	RequestTimeout        = "REQUEST_TIMEOUT"
+	InvalidCredentials    = "INVALID_CREDENTIAL"
 )
 
 var (
@@ -36,6 +37,8 @@ var (
 	ErrRequestTimeout = errors.New("the request to server is timeout, please try again")
 	// ErrServerError will throw if any the Internal Server Error happen
 	ErrServerError = errors.New("internal server error")
+	// ErrInvalidCredential will throw if any the Internal Server Error happen
+	ErrInvalidCredential = errors.New("invalid credential, please check your email or username or password")
 )
 
 type ApiResponse struct {
@@ -167,6 +170,8 @@ func (r *ApiResponse) getMessageErrorCode(errorCode string) string {
 		return ErrResourceNotFoundError.Error()
 	case RequestTimeout:
 		return ErrRequestTimeout.Error()
+	case InvalidCredentials:
+		return ErrInvalidCredential.Error()
 	default:
 		return ErrServerError.Error()
 	}

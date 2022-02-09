@@ -12,15 +12,15 @@ type Usecase struct {
 	mock.Mock
 }
 
-func (_m *Usecase) GetProducts(ctx context.Context,limit, offset int) ([]domain.Product, error) {
+func (_m *Usecase) GetProducts(ctx context.Context,limit, offset int) ([]domain.ProductObjectResponse, error) {
 	ret := _m.Called(ctx, limit, offset)
 
-	var r0 []domain.Product
-	if rf, ok := ret.Get(0).(func(context.Context, int, int) []domain.Product); ok {
+	var r0 []domain.ProductObjectResponse
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) []domain.ProductObjectResponse); ok {
 		r0 = rf(ctx, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]domain.Product)
+			r0 = ret.Get(0).([]domain.ProductObjectResponse)
 		}
 	}
 
@@ -34,15 +34,15 @@ func (_m *Usecase) GetProducts(ctx context.Context,limit, offset int) ([]domain.
 	return r0, r1
 }
 
-func (_m *Usecase) GetProductById(ctx context.Context,id uint) (*domain.Product, error) {
+func (_m *Usecase) GetProductById(ctx context.Context,id uint) (*domain.ProductObjectResponse, error) {
 	ret := _m.Called(ctx, id)
 
-	var r0 *domain.Product
-	if rf, ok := ret.Get(0).(func(context.Context, uint) *domain.Product); ok {
+	var r0 *domain.ProductObjectResponse
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *domain.ProductObjectResponse); ok {
 		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*domain.Product)
+			r0 = ret.Get(0).(*domain.ProductObjectResponse)
 		}
 	}
 

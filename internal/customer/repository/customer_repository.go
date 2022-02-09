@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"clean-architecture-beego/database"
 	"clean-architecture-beego/internal/domain"
+	"clean-architecture-beego/pkg/database"
 	"context"
 
 	"gorm.io/gorm"

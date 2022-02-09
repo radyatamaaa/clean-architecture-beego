@@ -160,5 +160,18 @@ func TestCustomerHandler_GetCustomerById(t *testing.T) {
 		assert.NoError(t, err)
 		req.WithContext(context.Background())
 
+		rec := httptest.NewRecorder()
+
+		handler := customerHttpHandler.CustomerHandler{
+			CustomerUseCase: mockCostumerUsecase,
+		}
+		testHelper.PrepareHandler(t, &handler.Controller, req, rec)
+		handler.Prepare()
+
+		handler.GetCustomerByID()
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		mockCostumerUsecase.AssertExpectations(t)
+
 	})
 }

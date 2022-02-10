@@ -4,6 +4,7 @@ import (
 	"clean-architecture-beego/internal/domain"
 	_mockProductRepository "clean-architecture-beego/internal/product/mocks"
 	"clean-architecture-beego/internal/product/usecase"
+	"clean-architecture-beego/pkg/logger"
 	"context"
 	"errors"
 	"github.com/bxcodec/faker"
@@ -14,6 +15,7 @@ import (
 )
 var (
 	timeoutContext = time.Second * 30
+	l = logger.NewStdOutLogger(30,"all","Local",true)
 )
 func TestProductUseCase_GetProducts(t *testing.T) {
 	//resultMock
@@ -31,7 +33,7 @@ func TestProductUseCase_GetProducts(t *testing.T) {
 		mockProductRepository.On("Fetch", mock.Anything,
 			mock.AnythingOfType("int"),mock.AnythingOfType("int")).Return(mockProduct, nil).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		a, err := u.GetProducts(context.TODO(), limit,offset)
 
@@ -48,7 +50,7 @@ func TestProductUseCase_GetProducts(t *testing.T) {
 		mockProductRepository.On("Fetch", mock.Anything,
 			mock.AnythingOfType("int"),mock.AnythingOfType("int")).Return([]domain.Product{}, errors.New("invalid query")).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		_, err := u.GetProducts(context.TODO(), limit,offset)
 
@@ -73,7 +75,7 @@ func TestProductUseCase_GetProductById(t *testing.T) {
 		mockProductRepository.On("FindByID", mock.Anything,
 			mock.AnythingOfType("uint")).Return(mockProduct, nil).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		a, err := u.GetProductById(context.TODO(), id)
 
@@ -90,7 +92,7 @@ func TestProductUseCase_GetProductById(t *testing.T) {
 		mockProductRepository.On("FindByID", mock.Anything,
 			mock.AnythingOfType("uint")).Return(domain.Product{}, errors.New("invalid query")).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		_, err := u.GetProductById(context.TODO(), id)
 
@@ -113,7 +115,7 @@ func TestProductUseCase_SaveProduct(t *testing.T) {
 		mockProductRepository.On("Store", mock.Anything,
 			mock.AnythingOfType("domain.Product")).Return(nil).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		err := u.SaveProduct(context.TODO(), mockProduct)
 
@@ -129,7 +131,7 @@ func TestProductUseCase_SaveProduct(t *testing.T) {
 		mockProductRepository.On("Store", mock.Anything,
 			mock.AnythingOfType("domain.Product")).Return(errors.New("invalid query")).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		err := u.SaveProduct(context.TODO(), mockProduct)
 
@@ -153,7 +155,7 @@ func TestProductUseCase_UpdateProduct(t *testing.T) {
 		mockProductRepository.On("Update", mock.Anything,
 			mock.AnythingOfType("domain.Product")).Return(nil).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		err := u.UpdateProduct(context.TODO(), mockProduct)
 
@@ -169,7 +171,7 @@ func TestProductUseCase_UpdateProduct(t *testing.T) {
 		mockProductRepository.On("Update", mock.Anything,
 			mock.AnythingOfType("domain.Product")).Return(errors.New("invalid query")).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		err := u.UpdateProduct(context.TODO(), mockProduct)
 
@@ -195,7 +197,7 @@ func TestProductUseCase_DeleteProduct(t *testing.T) {
 		mockProductRepository.On("Delete", mock.Anything,
 			mock.AnythingOfType("int")).Return(nil).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		err := u.DeleteProduct(context.TODO(), int(id))
 
@@ -211,7 +213,7 @@ func TestProductUseCase_DeleteProduct(t *testing.T) {
 		mockProductRepository.On("Delete", mock.Anything,
 			mock.AnythingOfType("int")).Return(errors.New("invalid query")).Once()
 
-		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository)
+		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
 		err := u.DeleteProduct(context.TODO(), int(id))
 

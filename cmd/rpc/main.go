@@ -7,6 +7,7 @@ import (
 	productUcase "clean-architecture-beego/internal/product/usecase"
 	"clean-architecture-beego/pkg/database"
 	"clean-architecture-beego/pkg/jwt"
+	"clean-architecture-beego/pkg/logger"
 	"fmt"
 	"github.com/beego/beego/v2/core/logs"
 	beego "github.com/beego/beego/v2/server/web"
@@ -52,6 +53,9 @@ func main() {
 
 	timeoutContext := time.Duration(requestTimeout) * time.Second
 
+	// logger
+	l := logger.NewStdOutLogger(30,"all","Local",true)
+
 	if listen, err := net.Listen("tcp", fmt.Sprintf("%s:%s", grpcHost, httpPortGrpc)); err != nil {
 		logs.Critical("Could not listen @ %v :: %v", httpPortGrpc, err)
 	} else {
@@ -67,23 +71,30 @@ func main() {
 		if err != nil{
 			panic(err)
 		}
+		rpcMiddlewares := middlewares.NewRpcMiddleware(ignoreMethod,auth,l)
+
 		grpcServer := grpc.NewServer(
 			grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+				rpcMiddlewares.LoggerStreamInterceptor,
 			grpc_ctxtags.StreamServerInterceptor(),
-			grpc_auth.StreamServerInterceptor(middlewares.NewAuthFunc(ignoreMethod,auth).AuthFunc),
+			grpc_auth.StreamServerInterceptor(rpcMiddlewares.AuthFunc),
 			grpc_recovery.StreamServerInterceptor(),
+
+
 		)),
 			grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+				rpcMiddlewares.LoggerUnaryServerInterceptor,
 				grpc_ctxtags.UnaryServerInterceptor(),
-				grpc_auth.UnaryServerInterceptor(middlewares.NewAuthFunc(ignoreMethod,auth).AuthFunc),
+				grpc_auth.UnaryServerInterceptor(rpcMiddlewares.AuthFunc),
 				grpc_recovery.UnaryServerInterceptor(),
 			)),
+
 			)
 
 		//register Services
-		productRepository := productRepo.NewProductRepository(db)
-		productUseCase := productUcase.NewProductUseCase(timeoutContext, productRepository)
-		productService := productGrpc.NewProductService(productUseCase)
+		productRepository := productRepo.NewProductRepository(db,l)
+		productUseCase := productUcase.NewProductUseCase(timeoutContext, productRepository,l)
+		productService := productGrpc.NewProductService(productUseCase,l)
 		productGrpc.RegisterProductServiceServer(grpcServer, productService)
 
 		//grpc listen and serve

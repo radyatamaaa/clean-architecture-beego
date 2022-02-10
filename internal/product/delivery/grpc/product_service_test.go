@@ -3,6 +3,7 @@ package grpc
 import (
 	"clean-architecture-beego/internal/domain"
 	_productUsecaseMock "clean-architecture-beego/internal/product/mocks"
+	"clean-architecture-beego/pkg/logger"
 	"context"
 	"github.com/bxcodec/faker"
 	"github.com/stretchr/testify/assert"
@@ -21,6 +22,7 @@ const bufSize = 1024 * 1024
 var (
 	lis *bufconn.Listener
 	productUsecaseMock  *_productUsecaseMock.Usecase
+	l = logger.NewStdOutLogger(30,"all","Local",true)
 )
 
 type Token struct {
@@ -31,7 +33,7 @@ func init() {
 	s := grpc.NewServer()
 	productUsecaseMock = new(_productUsecaseMock.Usecase)
 
-	productService := NewProductService(productUsecaseMock)
+	productService := NewProductService(productUsecaseMock,l)
 	RegisterProductServiceServer(s, productService)
 	go func() {
 		if err := s.Serve(lis); err != nil {

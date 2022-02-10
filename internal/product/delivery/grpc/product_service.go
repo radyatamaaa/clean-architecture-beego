@@ -3,6 +3,7 @@ package grpc
 import (
 	"clean-architecture-beego/internal/domain"
 	"clean-architecture-beego/pkg/helpers/converter_value"
+	"clean-architecture-beego/pkg/logger"
 	"context"
 	"fmt"
 	"google.golang.org/protobuf/runtime/protoimpl"
@@ -11,15 +12,19 @@ import (
 
 type ProductService struct {
 	ProductUseCase domain.ProductUseCase
+	log logger.Logger
 }
 
-func NewProductService(	productUseCase domain.ProductUseCase) *ProductService {
+func NewProductService(	productUseCase domain.ProductUseCase,log logger.Logger) *ProductService {
 	return &ProductService{
 		ProductUseCase:productUseCase,
+		log: log,
 	}
 }
 
 func (p ProductService) GetProducts(ctx context.Context, params *GetProductsParams) (*GetProductsResult, error) {
+	log := "internal.delivery.grpc.ProductService.GetProducts: %s"
+
 	result := new(GetProductsResult)
 	if ctx == nil {
 		ctx = context.Background()
@@ -43,7 +48,8 @@ func (p ProductService) GetProducts(ctx context.Context, params *GetProductsPara
 	}
 	res, err := p.ProductUseCase.GetProducts(ctx,limit, offset)
 	if err != nil{
-		return nil, err
+		p.log.Error(log,err.Error())
+		return nil,err
 	}
 
 	result.Data = p.mappingResultGetProducts(res)

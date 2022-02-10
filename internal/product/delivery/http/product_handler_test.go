@@ -6,6 +6,7 @@ import (
 	_productUsecaseMock "clean-architecture-beego/internal/product/mocks"
 	"clean-architecture-beego/pkg/helpers/converter_value"
 	testHelper "clean-architecture-beego/pkg/helpers/test"
+	"clean-architecture-beego/pkg/logger"
 	"context"
 	"encoding/json"
 	"errors"
@@ -27,11 +28,13 @@ var (
 	DeleteProductUrl           = GroupUrl + "/products"
 	GetProductByIDUrl           = GroupUrl + "/products"
 )
-
+var (
+	l = logger.NewStdOutLogger(30,"all","Local",true)
+)
 func TestProductHandler_LoadHandler(t *testing.T) {
 	mockproductUsecase := new(_productUsecaseMock.Usecase)
 
-	productHttpHandler.NewProductHandler(mockproductUsecase)
+	productHttpHandler.NewProductHandler(mockproductUsecase,l)
 
 	mockproductUsecase.AssertExpectations(t)
 }

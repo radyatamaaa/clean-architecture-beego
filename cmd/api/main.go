@@ -12,6 +12,7 @@ import (
 	"clean-architecture-beego/pkg/database"
 	"clean-architecture-beego/pkg/helpers/response"
 	"clean-architecture-beego/pkg/jwt"
+	"clean-architecture-beego/pkg/logger"
 	"github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/redis"
 	beego "github.com/beego/beego/v2/server/web"
@@ -34,7 +35,7 @@ func main() {
 
 	// default vars
 	var (
-		requestTimeout = 3
+		requestTimeout = 1
 	)
 
 	if err := beego.LoadAppConfig("ini", "./conf/app.conf"); err != nil {
@@ -55,6 +56,9 @@ func main() {
 	}
 
 	timeoutContext := time.Duration(requestTimeout) * time.Second
+
+	// logger
+	l := logger.NewStdOutLogger(30,"all","Local",true)
 
 	// swagger config
 	if beego.BConfig.RunMode == "dev" {
@@ -82,24 +86,28 @@ func main() {
 		} else {
 			auth.SetAdapter(bm)
 
+			apiMiddlewares := middlewares.NewMiddleware(l)
+
 			// user handler
 			userRepository := userRepo.NewUserRepository(db)
 			userUseCase := userUcase.NewUserUseCase(timeoutContext, userRepository)
 			userHandler.NewUserHandler(userUseCase, auth)
 
+			beego.InsertFilterChain("/*", apiMiddlewares.Logger)
 			beego.InsertFilterChain("/api/*", middlewares.NewJwtMiddleware().JwtMiddleware(auth))
 		}
 	} else {
 		panic(err)
 	}
 
+
 	// default error handler
 	beego.ErrorController(&response.ErrorController{})
 
 	// product handler
-	productRepository := productRepo.NewProductRepository(db)
-	productUseCase := productUcase.NewProductUseCase(timeoutContext, productRepository)
-	productHandler.NewProductHandler(productUseCase)
+	productRepository := productRepo.NewProductRepository(db,l)
+	productUseCase := productUcase.NewProductUseCase(timeoutContext, productRepository,l)
+	productHandler.NewProductHandler(productUseCase,l)
 
 	beego.Run()
 }

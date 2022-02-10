@@ -4,6 +4,7 @@ import (
 	"clean-architecture-beego/internal/domain"
 	"clean-architecture-beego/pkg/helpers/converter_value"
 	"clean-architecture-beego/pkg/helpers/response"
+	"clean-architecture-beego/pkg/logger"
 	"clean-architecture-beego/pkg/validator"
 	"context"
 	"errors"
@@ -16,10 +17,12 @@ type ProductHandler struct {
 	beego.Controller
 	response.ApiResponse
 	ProductUseCase domain.ProductUseCase
+	log logger.Logger
 }
 
-func NewProductHandler(useCase domain.ProductUseCase) {
+func NewProductHandler(useCase domain.ProductUseCase,	log logger.Logger) {
 	pHandler := &ProductHandler{
+		log:log,
 		ProductUseCase: useCase,
 	}
 	beego.Router("/api/v1/products", pHandler, "get:GetProducts")
@@ -49,6 +52,7 @@ func NewProductHandler(useCase domain.ProductUseCase) {
 // @Failure 500 {object} response.ApiResponse
 // @Router /v1/products [get]
 func (h *ProductHandler) GetProducts() {
+	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	// default
 	var pageSize = 10
 	var page = 0
@@ -63,6 +67,7 @@ func (h *ProductHandler) GetProducts() {
 	result, err := h.ProductUseCase.GetProducts(h.Ctx.Request.Context(), pageSize, page)
 
 	if err != nil {
+		h.log.Error(log,err.Error())
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
@@ -76,6 +81,7 @@ func (h *ProductHandler) GetProducts() {
 }
 
 func (h *ProductHandler) StoreProduct() {
+	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	var request domain.ProductStoreRequest
 
 	if err := h.BindJSON(&request); err != nil {
@@ -87,6 +93,7 @@ func (h *ProductHandler) StoreProduct() {
 		return
 	}
 	if err := h.ProductUseCase.SaveProduct(h.Ctx.Request.Context(), request); err != nil {
+		h.log.Error(log,err.Error())
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
@@ -99,6 +106,7 @@ func (h *ProductHandler) StoreProduct() {
 }
 
 func (h *ProductHandler) UpdateProduct() {
+	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	var request domain.ProductUpdateRequest
 
 	if err := h.BindJSON(&request); err != nil {
@@ -110,6 +118,7 @@ func (h *ProductHandler) UpdateProduct() {
 		return
 	}
 	if err := h.ProductUseCase.UpdateProduct(h.Ctx.Request.Context(), request); err != nil {
+		h.log.Error(log,err.Error())
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
@@ -122,11 +131,13 @@ func (h *ProductHandler) UpdateProduct() {
 }
 
 func (h *ProductHandler) DeleteProduct() {
+	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	id := converter_value.StringToInt(h.Ctx.Input.Param("id"))
 
 	err := h.ProductUseCase.DeleteProduct(h.Ctx.Request.Context(), id)
 
 	if err != nil {
+		h.log.Error(log,err.Error())
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
@@ -140,11 +151,13 @@ func (h *ProductHandler) DeleteProduct() {
 }
 
 func (h *ProductHandler) GetProductByID() {
+	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	id := converter_value.StringToInt(h.Ctx.Input.Param("id"))
 
 	result, err := h.ProductUseCase.GetProductById(h.Ctx.Request.Context(), uint(id))
 
 	if err != nil {
+		h.log.Error(log,err.Error())
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return

@@ -26,6 +26,9 @@ type (
 		// SetAdapter Set a cache adapter for authentication.
 		SetAdapter(adapter Adapter) JWT
 
+		// MiddlewareRPCAuth Implemented basic JWT permission authentication.
+		MiddlewareRPCAuth(ctx context.Context,token string) (context.Context, error)
+
 		// Middleware Implemented basic JWT permission authentication.
 		Middleware(r *http.Request) (*http.Request, error)
 
@@ -216,6 +219,20 @@ func (j *jwt) SetAdapter(adapter Adapter) JWT {
 	j.adapter = adapter
 	return j
 }
+
+// MiddlewareRPCAuth Implemented basic JWT permission authentication.
+func (j *jwt) MiddlewareRPCAuth(ctx context.Context,token string) (context.Context, error) {
+	payload, err := j.parseTokenRPC(token)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx = context.WithValue(ctx, defaultPayloadCtxKey, payload)
+	ctx = context.WithValue(ctx, defaultTokenCtxKey, token)
+
+	return ctx, nil
+}
+
 
 // Middleware Implemented basic JWT permission authentication.
 func (j *jwt) Middleware(r *http.Request) (*http.Request, error) {
@@ -430,6 +447,32 @@ func (j *jwt) GetIdentity(r *http.Request, ignoreExpired ...bool) (interface{}, 
 	}
 
 	return identity, nil
+}
+
+// Parses and returns the payload and token from requests.
+func (j *jwt) parseTokenRPC(token string, ignoreExpired ...bool) (payload Payload, err error) {
+	claims, err := j.parseToken(token, ignoreExpired...)
+	if err != nil {
+		return
+	}
+
+	if j.identityKey != "" {
+		if err = j.verifyIdentity(claims[j.identityKey], claims[jwtId], false); err != nil {
+			return
+		}
+	}
+
+	payload = make(Payload)
+	for k, v := range claims {
+		switch k {
+		case jwtAudience, jwtExpired, jwtId, jwtIssueAt, jwtIssuer, jwtNotBefore, jwtSubject:
+			// ignore the standard claims
+		default:
+			payload[k] = v
+		}
+	}
+
+	return
 }
 
 // Parses and returns the payload and token from requests.

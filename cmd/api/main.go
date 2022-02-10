@@ -35,7 +35,7 @@ func main() {
 
 	// default vars
 	var (
-		requestTimeout = 1
+		requestTimeout = 3
 	)
 
 	if err := beego.LoadAppConfig("ini", "./conf/app.conf"); err != nil {

@@ -4,8 +4,9 @@ import (
 	"clean-architecture-beego/pkg/logger"
 	beego "github.com/beego/beego/v2/server/web"
 	"strconv"
-
-	"github.com/beego/beego/v2/server/web/context"
+	context "context"
+	contextBeego "github.com/beego/beego/v2/server/web/context"
+	"github.com/twinj/uuid"
 )
 
 type Middleware struct {
@@ -17,8 +18,14 @@ func NewMiddleware(logger logger.Logger) *Middleware {
 	}
 }
 func (m *Middleware) Logger(next beego.FilterFunc) beego.FilterFunc {
-	return func(ctx *context.Context) {
+	return func(ctx *contextBeego.Context) {
 		m.Log.Info("Accepted")
+
+		requestId := uuid.NewV4().String()
+		c := context.WithValue(ctx.Request.Context(), "REQUEST_ID", requestId)
+		ctx.Request.WithContext(c)
+
+		m.Log.Info("Request-Id : " + requestId)
 
 		next(ctx)
 

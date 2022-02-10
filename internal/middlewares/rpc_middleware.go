@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"strconv"
+	"github.com/twinj/uuid"
 )
 
 type RpcMiddleware struct {
@@ -34,6 +35,10 @@ func(c *RpcMiddleware) LoggerStreamInterceptor(srv interface{}, stream grpc.Serv
 	c.Log.Info("Accepted")
 
 	ctx := stream.Context()
+
+	requestId := uuid.NewV4().String()
+	c.Log.Info("Request-Id : " + requestId)
+
 	status := codes.OK
 	statusDesc := codes.OK.String()
 	method, _ := grpc.Method(ctx)
@@ -51,6 +56,11 @@ func(c *RpcMiddleware) LoggerStreamInterceptor(srv interface{}, stream grpc.Serv
 }
 func(c *RpcMiddleware) LoggerUnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	c.Log.Info("Accepted")
+
+	requestId := uuid.NewV4().String()
+	c.Log.Info("Request-Id : " + requestId)
+
+	ctx = context.WithValue(ctx, "REQUEST_ID", requestId)
 
 	status := codes.OK
 	statusDesc := codes.OK.String()

@@ -2,6 +2,7 @@ package main
 
 import (
 	"clean-architecture-beego/internal/domain"
+	"clean-architecture-beego/internal/middlewares"
 	productHandler "clean-architecture-beego/internal/product/delivery/http"
 	productRepo "clean-architecture-beego/internal/product/repository"
 	productUcase "clean-architecture-beego/internal/product/usecase"
@@ -11,7 +12,6 @@ import (
 	"clean-architecture-beego/pkg/database"
 	"clean-architecture-beego/pkg/helpers/response"
 	"clean-architecture-beego/pkg/jwt"
-	"clean-architecture-beego/internal/middlewares"
 	"github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/redis"
 	beego "github.com/beego/beego/v2/server/web"

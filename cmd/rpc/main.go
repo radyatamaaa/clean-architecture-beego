@@ -54,15 +54,16 @@ func main() {
 	if listen, err := net.Listen("tcp", fmt.Sprintf("%s:%s", grpcHost, httpPortGrpc)); err != nil {
 		logs.Critical("Could not listen @ %v :: %v", httpPortGrpc, err)
 	} else {
+		var ignoreMethod = []string{"/product.ProductService/GetProductByID"}
 		grpcServer := grpc.NewServer(
 			grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_ctxtags.StreamServerInterceptor(),
-			grpc_auth.StreamServerInterceptor(middlewares.AuthFunc),
+			grpc_auth.StreamServerInterceptor(middlewares.NewAuthFunc(ignoreMethod).AuthFunc),
 			grpc_recovery.StreamServerInterceptor(),
 		)),
 			grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 				grpc_ctxtags.UnaryServerInterceptor(),
-				grpc_auth.UnaryServerInterceptor(middlewares.AuthFunc),
+				grpc_auth.UnaryServerInterceptor(middlewares.NewAuthFunc(ignoreMethod).AuthFunc),
 				grpc_recovery.UnaryServerInterceptor(),
 			)),
 			)

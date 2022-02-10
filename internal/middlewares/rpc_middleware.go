@@ -8,16 +8,28 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
-var ignoreMethod = []string{"/product.ProductService/GetProductByID"}
 
-func AuthFunc(ctx context.Context) (context.Context, error) {
-	method, _ := grpc.Method(ctx)
-	for _, imethod := range ignoreMethod {
-		if method == imethod {
-			return ctx, nil
+type JwtConfigRpc struct {
+	Skipper func(ctx context.Context) bool
+
+}
+
+func NewAuthFunc(ignoreMethod []string) *JwtConfigRpc {
+	return &JwtConfigRpc{Skipper: func(ctx context.Context) bool {
+		method, _ := grpc.Method(ctx)
+		for _, imethod := range ignoreMethod {
+			if method == imethod {
+				return true
+			}
 		}
-	}
+		return false
+	}}
+}
 
+func(c *JwtConfigRpc) AuthFunc(ctx context.Context) (context.Context, error) {
+	if c.Skipper(ctx) {
+		return ctx,nil
+	}
 	token, err := grpc_auth.AuthFromMD(ctx, "bearer")
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "invalid auth token: %v", err)

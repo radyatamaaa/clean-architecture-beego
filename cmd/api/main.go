@@ -11,10 +11,10 @@ import (
 	"clean-architecture-beego/pkg/database"
 	"clean-architecture-beego/pkg/helpers/response"
 	"clean-architecture-beego/pkg/jwt"
+	"clean-architecture-beego/pkg/middleware"
 	"github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/redis"
 	beego "github.com/beego/beego/v2/server/web"
-	"github.com/beego/beego/v2/server/web/context"
 	"github.com/beego/beego/v2/server/web/filter/cors"
 	"net/http"
 	"time"
@@ -87,50 +87,7 @@ func main() {
 			userUseCase := userUcase.NewUserUseCase(timeoutContext, userRepository)
 			userHandler.NewUserHandler(userUseCase, auth)
 
-			beego.InsertFilter("/api/*", beego.BeforeRouter, func(ctx *context.Context) {
-				if r, err := auth.Middleware(ctx.Request); err != nil {
-					ctx.ResponseWriter.Header().Set("Content-Type", "application/json")
-					switch {
-					case jwt.IsInvalidToken(err):
-						ctx.ResponseWriter.WriteHeader(http.StatusBadRequest)
-						ctx.Output.JSON(response.ApiResponse{
-							Code:    "INVALID_TOKEN",
-							Message: "token is invalid",
-						}, beego.BConfig.RunMode != "prod", false)
-						return
-					case jwt.IsExpiredToken(err):
-						ctx.ResponseWriter.WriteHeader(http.StatusBadRequest)
-						ctx.Output.JSON(response.ApiResponse{
-							Code:    "EXPIRED_TOKEN",
-							Message: "token is expired",
-						}, beego.BConfig.RunMode != "prod", false)
-						return
-					case jwt.IsMissingToken(err):
-						ctx.ResponseWriter.WriteHeader(http.StatusBadRequest)
-						ctx.Output.JSON(response.ApiResponse{
-							Code:    "MISSING_TOKEN",
-							Message: "token is missing",
-						}, beego.BConfig.RunMode != "prod", false)
-						return
-					case jwt.IsAuthElsewhere(err):
-						ctx.ResponseWriter.WriteHeader(http.StatusUnauthorized)
-						ctx.Output.JSON(response.ApiResponse{
-							Code:    "AUTH_ELSE_WHERE",
-							Message: "auth else where",
-						}, beego.BConfig.RunMode != "prod", false)
-						return
-					default:
-						ctx.ResponseWriter.WriteHeader(http.StatusUnauthorized)
-						ctx.Output.JSON(response.ApiResponse{
-							Code:    response.UnauthorizedError,
-							Message: response.ErrUnAuthorize.Error(),
-						}, beego.BConfig.RunMode != "prod", false)
-						return
-					}
-				} else {
-					ctx.Request = r
-				}
-			})
+			beego.InsertFilterChain("/api/*", middleware.NewJwtMiddleware().JwtMiddleware(auth))
 		}
 	} else {
 		panic(err)

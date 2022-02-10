@@ -1,4 +1,4 @@
-package middleware
+package middlewares
 
 import (
 	"clean-architecture-beego/pkg/helpers/response"

@@ -28,6 +28,7 @@ var (
 type Token struct {
 	AccessToken string `json:"access_token"`
 }
+
 func init() {
 	lis = bufconn.Listen(bufSize)
 	s := grpc.NewServer()
@@ -65,7 +66,6 @@ func TestProductService_GetProducts(t *testing.T) {
 
 			// Add token to gRPC Request.
 			ctx = grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer eyJasdhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NDQ0MTYzMjksImlhdCI6MTY0NDQxNDgyOSwiaXNzIjoiYmFja2VuZCIsImp0aSI6IjE2NDQ0MTQ4MjkwNjk1NjM5MDAiLCJ1aWQiOjMsInVzZXJuYW1lIjoicmFkeWExMjMifQ.ARQx7B_rAYe9sb9hL0Eaq4ChMT58kMgJPrFW3ft8QcA")
-
 
 			req := &GetProductsParams{
 				state:         protoimpl.MessageState{},

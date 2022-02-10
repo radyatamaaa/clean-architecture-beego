@@ -3,6 +3,7 @@ package grpc
 import (
 	"clean-architecture-beego/internal/domain"
 	"context"
+	"fmt"
 	"strconv"
 
 	"google.golang.org/protobuf/runtime/protoimpl"
@@ -23,6 +24,9 @@ func (p CustomerService) GetCustomers(ctx context.Context, params *GetCustomersP
 	if ctx == nil {
 		ctx = context.Background()
 	}
+
+	v := ctx.Value("JWT_PAYLOAD")
+	fmt.Println(v)
 
 	// default
 	var limit = 10

@@ -11,7 +11,7 @@ import (
 	"clean-architecture-beego/pkg/database"
 	"clean-architecture-beego/pkg/helpers/response"
 	"clean-architecture-beego/pkg/jwt"
-	"clean-architecture-beego/pkg/middleware"
+	"clean-architecture-beego/internal/middlewares"
 	"github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/redis"
 	beego "github.com/beego/beego/v2/server/web"
@@ -87,7 +87,7 @@ func main() {
 			userUseCase := userUcase.NewUserUseCase(timeoutContext, userRepository)
 			userHandler.NewUserHandler(userUseCase, auth)
 
-			beego.InsertFilterChain("/api/*", middleware.NewJwtMiddleware().JwtMiddleware(auth))
+			beego.InsertFilterChain("/api/*", middlewares.NewJwtMiddleware().JwtMiddleware(auth))
 		}
 	} else {
 		panic(err)

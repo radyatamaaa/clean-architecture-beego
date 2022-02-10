@@ -4,6 +4,7 @@ import (
 	"clean-architecture-beego/internal/domain"
 	"clean-architecture-beego/pkg/helpers/converter_value"
 	"context"
+	"fmt"
 	"google.golang.org/protobuf/runtime/protoimpl"
 	"strconv"
 )
@@ -23,6 +24,9 @@ func (p ProductService) GetProducts(ctx context.Context, params *GetProductsPara
 	if ctx == nil {
 		ctx = context.Background()
 	}
+
+	v := ctx.Value("JWT_PAYLOAD")
+	fmt.Println(v)
 
 	// default
 	var limit = 10

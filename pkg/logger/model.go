@@ -12,6 +12,7 @@ type LoggingObj struct {
 type LoggingData struct {
 	Method string `json:"method"`
 	HttpCode int `json:"code"`
+	HttpCodeDesc string `json:"code_desc"`
 	Request interface{} `json:"request"`
 	Response interface{} `json:"response"`
 }

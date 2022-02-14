@@ -45,12 +45,12 @@ func(c *RpcMiddleware) LoggerStreamInterceptor(srv interface{}, stream grpc.Serv
 	ctx = context.WithValue(ctx, "LOG", logging)
 
 	status := codes.OK
-	//statusDesc := codes.OK.String()
+	statusDesc := codes.OK.String()
 	method, _ := grpc.Method(ctx)
 	err = handler(srv, stream)
 	if err != nil{
 		status = grpc.Code(err)
-		//statusDesc = grpc.Code(err).String()
+		statusDesc = grpc.Code(err).String()
 	}
 	requestbody,_ := json.Marshal(srv)
 	responsebody,_ := json.Marshal(stream)
@@ -58,6 +58,7 @@ func(c *RpcMiddleware) LoggerStreamInterceptor(srv interface{}, stream grpc.Serv
 	logging = ctx.Value("LOG").(logger.LoggingObj)
 	logging.Data.Request = string(requestbody)
 	logging.Data.HttpCode = int(status)
+	logging.Data.HttpCodeDesc = statusDesc
 	logging.Data.Method = ""
 	logging.Data.Response = string(responsebody)
 	logging.Host = ""
@@ -89,12 +90,12 @@ func(c *RpcMiddleware) LoggerUnaryServerInterceptor(ctx context.Context, req int
 	ctx = context.WithValue(ctx, "LOG", logging)
 
 	status := codes.OK
-	//statusDesc := codes.OK.String()
+	statusDesc := codes.OK.String()
 	method, _ := grpc.Method(ctx)
 	res,err := handler(ctx, req)
 	if err != nil{
 		status = grpc.Code(err)
-		//statusDesc = grpc.Code(err).String()
+		statusDesc = grpc.Code(err).String()
 	}
 	requestbody,_ := json.Marshal(req)
 	responsebody,_ := json.Marshal(res)
@@ -102,6 +103,7 @@ func(c *RpcMiddleware) LoggerUnaryServerInterceptor(ctx context.Context, req int
 	logging = ctx.Value("LOG").(logger.LoggingObj)
 	logging.Data.Request = string(requestbody)
 	logging.Data.HttpCode = int(status)
+	logging.Data.HttpCodeDesc = statusDesc
 	logging.Data.Method = ""
 	logging.Data.Response = string(responsebody)
 	logging.Host = ""

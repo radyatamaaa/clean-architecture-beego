@@ -38,6 +38,7 @@ func (m *Middleware) Logger(next beego.FilterFunc) beego.FilterFunc {
 		logging = ctx.Input.GetData("LOG").(logger.LoggingObj)
 		logging.Data.Request = string(requestbody)
 		logging.Data.HttpCode = ctx.ResponseWriter.Status
+		logging.Data.HttpCodeDesc = http.StatusText(ctx.ResponseWriter.Status)
 		logging.Data.Method = ctx.Request.Method
 		logging.Data.Response = string(responsebody)
 		logging.Host = ctx.Request.Host

@@ -50,19 +50,19 @@ type ProductUpdateRequest struct {
 }
 
 type ProductUseCase interface {
-	GetProducts(ctx context.Context,limit, offset int) ([]ProductObjectResponse, error)
-	GetProductById(ctx context.Context,id uint) (*ProductObjectResponse, error)
-	SaveProduct(ctx context.Context,body ProductStoreRequest) error
-	UpdateProduct(ctx context.Context,body ProductUpdateRequest) error
-	DeleteProduct(ctx context.Context,id int) error
+	GetProducts(ctx context.Context,limit, offset int) ([]ProductObjectResponse, error,string)
+	GetProductById(ctx context.Context,id uint) (*ProductObjectResponse, error,string)
+	SaveProduct(ctx context.Context,body ProductStoreRequest) (error,string)
+	UpdateProduct(ctx context.Context,body ProductUpdateRequest) (error,string)
+	DeleteProduct(ctx context.Context,id int) (error,string)
 }
 
 type ProductRepository interface {
-	Fetch(ctx context.Context,limit int, offset int) ([]Product, error)
-	FindByID(ctx context.Context,id uint) (Product, error)
-	Update(ctx context.Context,product Product) error
-	Store(ctx context.Context,product Product) error
-	Delete(ctx context.Context,id int) error
+	Fetch(ctx context.Context,limit int, offset int) ([]Product, error,string)
+	FindByID(ctx context.Context,id uint) (Product, error,string)
+	Update(ctx context.Context,product Product) (error,string)
+	Store(ctx context.Context,product Product) (error,string)
+	Delete(ctx context.Context,id int) (error,string)
 }
 
 func (p Product) ToProductResponse() ProductObjectResponse {

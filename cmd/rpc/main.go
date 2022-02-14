@@ -51,10 +51,25 @@ func main() {
 		httpPortGrpc = port
 	}
 
+	appname ,err := beego.AppConfig.String("appname")
+	if err != nil {
+		panic(err)
+	}
+
+	app ,err := beego.AppConfig.String("app")
+	if err != nil {
+		panic(err)
+	}
+
+	version ,err := beego.AppConfig.String("version")
+	if err != nil {
+		panic(err)
+	}
+	
 	timeoutContext := time.Duration(requestTimeout) * time.Second
 
 	// logger
-	l := logger.NewStdOutLogger(30,"all","Local",true)
+	l := logger.NewStdOutLogger(30,"all","Local",true,version,app,appname)
 
 	if listen, err := net.Listen("tcp", fmt.Sprintf("%s:%s", grpcHost, httpPortGrpc)); err != nil {
 		logs.Critical("Could not listen @ %v :: %v", httpPortGrpc, err)

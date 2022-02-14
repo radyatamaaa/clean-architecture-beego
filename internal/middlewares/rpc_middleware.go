@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"encoding/json"
+	"github.com/twinj/uuid"
 	"clean-architecture-beego/pkg/jwt"
 	"clean-architecture-beego/pkg/logger"
 	"context"
@@ -8,8 +10,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"strconv"
-	"github.com/twinj/uuid"
+	"net/http"
 )
 
 type RpcMiddleware struct {
@@ -32,48 +33,91 @@ func NewRpcMiddleware(ignoreMethod []string,jwtAuth jwt.JWT,logger logger.Logger
 	Log: logger}
 }
 func(c *RpcMiddleware) LoggerStreamInterceptor(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
-	c.Log.Info("Accepted")
 
 	ctx := stream.Context()
 
 	requestId := uuid.NewV4().String()
-	c.Log.Info("Request-Id : " + requestId)
+	logging := logger.LoggingObj{
+		RequestId: requestId,
+	}
+
+	ctx = context.WithValue(ctx, "REQUEST_ID", requestId)
+	ctx = context.WithValue(ctx, "LOG", logging)
 
 	status := codes.OK
-	statusDesc := codes.OK.String()
+	//statusDesc := codes.OK.String()
 	method, _ := grpc.Method(ctx)
 	err = handler(srv, stream)
 	if err != nil{
 		status = grpc.Code(err)
-		statusDesc = grpc.Code(err).String()
+		//statusDesc = grpc.Code(err).String()
+	}
+	requestbody,_ := json.Marshal(srv)
+	responsebody,_ := json.Marshal(stream)
+
+	logging = ctx.Value("LOG").(logger.LoggingObj)
+	logging.Data.Request = string(requestbody)
+	logging.Data.HttpCode = int(status)
+	logging.Data.Method = ""
+	logging.Data.Response = string(responsebody)
+	logging.Host = ""
+	logging.PathFile = method
+	if ctx.Value("FEATURE") != nil{
+		logging.Feature = ctx.Value("FEATURE").(string)
+	}
+	if logging.Data.HttpCode != http.StatusOK {
+		if ctx.Value("ERROR_MESSAGE") != nil{
+			logging.Message = ctx.Value("ERROR_MESSAGE").(string)
+		}
+		c.Log.Error(logging)
+		return nil
 	}
 
-	c.Log.Info("[" + strconv.Itoa(int(status)) + "] " + "[" + statusDesc + "] " + method + " ")
-
-	c.Log.Info("Closing")
+	c.Log.Info(logging)
 
 	return nil
 }
 func(c *RpcMiddleware) LoggerUnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	c.Log.Info("Accepted")
+
 
 	requestId := uuid.NewV4().String()
-	c.Log.Info("Request-Id : " + requestId)
-
-	ctx = context.WithValue(ctx, "REQUEST_ID", requestId)
-
-	status := codes.OK
-	statusDesc := codes.OK.String()
-	method, _ := grpc.Method(ctx)
-	_,err := handler(ctx, req)
-	if err != nil{
-		status = grpc.Code(err)
-		statusDesc = grpc.Code(err).String()
+	logging := logger.LoggingObj{
+		RequestId: requestId,
 	}
 
-	c.Log.Info("[" + strconv.Itoa(int(status)) + "] " + "[" + statusDesc + "] " + method + " ")
+	ctx = context.WithValue(ctx, "REQUEST_ID", requestId)
+	ctx = context.WithValue(ctx, "LOG", logging)
 
-	c.Log.Info("Closing")
+	status := codes.OK
+	//statusDesc := codes.OK.String()
+	method, _ := grpc.Method(ctx)
+	res,err := handler(ctx, req)
+	if err != nil{
+		status = grpc.Code(err)
+		//statusDesc = grpc.Code(err).String()
+	}
+	requestbody,_ := json.Marshal(req)
+	responsebody,_ := json.Marshal(res)
+
+	logging = ctx.Value("LOG").(logger.LoggingObj)
+	logging.Data.Request = string(requestbody)
+	logging.Data.HttpCode = int(status)
+	logging.Data.Method = ""
+	logging.Data.Response = string(responsebody)
+	logging.Host = ""
+	logging.PathFile = method
+	if ctx.Value("FEATURE") != nil{
+		logging.Feature = ctx.Value("FEATURE").(string)
+	}
+	if logging.Data.HttpCode != http.StatusOK {
+		if ctx.Value("ERROR_MESSAGE") != nil{
+			logging.Message = ctx.Value("ERROR_MESSAGE").(string)
+		}
+		c.Log.Error(logging)
+		return nil,nil
+	}
+
+	c.Log.Info(logging)
 
 	return nil,nil
 }

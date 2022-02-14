@@ -5,6 +5,7 @@ import (
 	"clean-architecture-beego/pkg/database"
 	"clean-architecture-beego/pkg/logger"
 	"context"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -20,57 +21,52 @@ func NewProductRepository(db *gorm.DB,log logger.Logger) domain.ProductRepositor
 	}
 }
 
-func (p productRepository) Fetch(ctx context.Context,limit int, offset int) ([]domain.Product, error) {
+func (p productRepository) Fetch(ctx context.Context,limit int, offset int) ([]domain.Product, error,string) {
 	log := "internal.product.repository.productRepository.Fetch: %s"
 
 	var entities []domain.Product
 	paginator := database.NewPaginator(p.DB, offset, limit, &entities)
 	err := paginator.Find(ctx).Error
 	if err != nil{
-		p.log.Error(log,err.Error())
-		return nil,err
+		return nil,err, fmt.Sprintf(log+"\n", err.Error())
 	}
-	return entities,nil
+	return entities,nil,""
 }
 
-func (p productRepository) FindByID(ctx context.Context,id uint) (domain.Product, error) {
+func (p productRepository) FindByID(ctx context.Context,id uint) (domain.Product, error,string) {
 	log := "internal.product.repository.productRepository.FindByID: %s"
 
 	var entity domain.Product
 	err := p.DB.WithContext(ctx).First(&entity, "id =?", id).Error
 	if err != nil{
-		p.log.Error(log,err.Error())
-		return domain.Product{},err
+		return domain.Product{},err, fmt.Sprintf(log+"\n", err.Error())
 	}
-	return entity,nil
+	return entity,nil,""
 }
 
-func (p productRepository) Update(ctx context.Context,product domain.Product) error {
+func (p productRepository) Update(ctx context.Context,product domain.Product) (error,string) {
 	log := "internal.product.repository.productRepository.Update: %s"
 	err := p.DB.WithContext(ctx).Updates(&product).Error
 	if err != nil{
-		p.log.Error(log,err.Error())
-		return err
+		return err , fmt.Sprintf(log+"\n", err.Error())
 	}
-	return nil
+	return nil,""
 }
 
-func (p productRepository) Store(ctx context.Context,product domain.Product) error {
+func (p productRepository) Store(ctx context.Context,product domain.Product) (error,string) {
 	log := "internal.product.repository.productRepository.Store: %s"
 	err := p.DB.WithContext(ctx).Create(&product).Error
 	if err != nil{
-		p.log.Error(log,err.Error())
-		return err
+		return err , fmt.Sprintf(log+"\n", err.Error())
 	}
-	return nil
+	return nil,""
 }
 
-func (p productRepository) Delete(ctx context.Context,id int) error {
+func (p productRepository) Delete(ctx context.Context,id int) (error,string) {
 	log := "internal.product.repository.productRepository.Delete: %s"
 	err := p.DB.WithContext(ctx).Exec("delete from products where id =?", id).Error
 	if err != nil{
-		p.log.Error(log,err.Error())
-		return err
+		return err , fmt.Sprintf(log+"\n", err.Error())
 	}
-	return nil
+	return nil,""
 }

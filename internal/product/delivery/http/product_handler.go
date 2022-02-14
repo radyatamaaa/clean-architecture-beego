@@ -52,7 +52,8 @@ func NewProductHandler(useCase domain.ProductUseCase,	log logger.Logger) {
 // @Failure 500 {object} response.ApiResponse
 // @Router /v1/products [get]
 func (h *ProductHandler) GetProducts() {
-	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
+	h.Ctx.Input.SetData("FEATURE","Product")
+	//log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	// default
 	var pageSize = 10
 	var page = 0
@@ -64,10 +65,9 @@ func (h *ProductHandler) GetProducts() {
 		page = parse
 	}
 
-	result, err := h.ProductUseCase.GetProducts(h.Ctx.Request.Context(), pageSize, page)
-
+	result, err ,errm:= h.ProductUseCase.GetProducts(h.Ctx.Request.Context(), pageSize, page)
 	if err != nil {
-		h.log.Error(log,err.Error())
+		h.Ctx.Input.SetData("ERROR_MESSAGE",errm)
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
@@ -81,7 +81,8 @@ func (h *ProductHandler) GetProducts() {
 }
 
 func (h *ProductHandler) StoreProduct() {
-	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
+	h.Ctx.Input.SetData("FEATURE","Product")
+	//log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	var request domain.ProductStoreRequest
 
 	if err := h.BindJSON(&request); err != nil {
@@ -92,8 +93,8 @@ func (h *ProductHandler) StoreProduct() {
 		h.ErrorResponse(h.Ctx, http.StatusUnprocessableEntity, response.ApiValidationError, err)
 		return
 	}
-	if err := h.ProductUseCase.SaveProduct(h.Ctx.Request.Context(), request); err != nil {
-		h.log.Error(log,err.Error())
+	if err ,errm := h.ProductUseCase.SaveProduct(h.Ctx.Request.Context(), request); err != nil {
+		h.Ctx.Input.SetData("ERROR_MESSAGE",errm)
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
@@ -106,7 +107,8 @@ func (h *ProductHandler) StoreProduct() {
 }
 
 func (h *ProductHandler) UpdateProduct() {
-	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
+	h.Ctx.Input.SetData("FEATURE","Product")
+	//log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	var request domain.ProductUpdateRequest
 
 	if err := h.BindJSON(&request); err != nil {
@@ -117,8 +119,8 @@ func (h *ProductHandler) UpdateProduct() {
 		h.ErrorResponse(h.Ctx, http.StatusUnprocessableEntity, response.ApiValidationError, err)
 		return
 	}
-	if err := h.ProductUseCase.UpdateProduct(h.Ctx.Request.Context(), request); err != nil {
-		h.log.Error(log,err.Error())
+	if err ,errm:= h.ProductUseCase.UpdateProduct(h.Ctx.Request.Context(), request); err != nil {
+		h.Ctx.Input.SetData("ERROR_MESSAGE",errm)
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
@@ -131,13 +133,14 @@ func (h *ProductHandler) UpdateProduct() {
 }
 
 func (h *ProductHandler) DeleteProduct() {
-	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
+	h.Ctx.Input.SetData("FEATURE","Product")
+	//log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	id := converter_value.StringToInt(h.Ctx.Input.Param("id"))
 
-	err := h.ProductUseCase.DeleteProduct(h.Ctx.Request.Context(), id)
+	err ,errm:= h.ProductUseCase.DeleteProduct(h.Ctx.Request.Context(), id)
 
 	if err != nil {
-		h.log.Error(log,err.Error())
+		h.Ctx.Input.SetData("ERROR_MESSAGE",errm)
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return
@@ -151,13 +154,14 @@ func (h *ProductHandler) DeleteProduct() {
 }
 
 func (h *ProductHandler) GetProductByID() {
-	log := "internal.delivery.http.ProductHandler.GetProducts: %s"
+	h.Ctx.Input.SetData("FEATURE","Product")
+	//log := "internal.delivery.http.ProductHandler.GetProducts: %s"
 	id := converter_value.StringToInt(h.Ctx.Input.Param("id"))
 
-	result, err := h.ProductUseCase.GetProductById(h.Ctx.Request.Context(), uint(id))
+	result, err ,errm:= h.ProductUseCase.GetProductById(h.Ctx.Request.Context(), uint(id))
 
 	if err != nil {
-		h.log.Error(log,err.Error())
+		h.Ctx.Input.SetData("ERROR_MESSAGE",errm)
 		if errors.Is(err, context.DeadlineExceeded) {
 			h.ErrorResponse(h.Ctx, http.StatusRequestTimeout, response.RequestTimeout, err)
 			return

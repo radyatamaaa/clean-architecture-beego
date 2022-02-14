@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"clean-architecture-beego/pkg/helpers/converter_value"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -25,6 +27,10 @@ const (
 	SecondaryGreen  = "\033[0;92m"
 	SecondaryYellow = "\033[0;93m"
 	SecondaryCyan   = "\033[0;96m"
+
+	ERROR = "<ERROR>"
+	INFO = "<INFO>"
+	DEBUG = "<DEBUG>"
 )
 
 var (
@@ -32,13 +38,16 @@ var (
 	LogLevel, LastUpdate string
 	TimeZone             time.Location
 	Style                bool
+	Version string
+	App string
+	Service string
 )
 
+
 type Logger interface {
-	Error(message string,args ...interface{})
-	Success(message string,args ...interface{})
-	Warning(message string,args ...interface{})
-	Info(message string,args ...interface{})
+	Error(logging LoggingObj)
+	Info(logging LoggingObj)
+	Debug(logging LoggingObj)
 }
 
 // L is the global instance of the logger
@@ -47,14 +56,17 @@ var L = &StdOutLogger{}
 // StdOutLogger logs to standard out
 type StdOutLogger struct{}
 
-func NewStdOutLogger(limit int, logLevel, timeZone string, style bool) Logger {
+func NewStdOutLogger(limit int, logLevel, timeZone string, style bool,version string,app string,service string) Logger {
+	Version = version
+	App = app
+	Service = service
 	var (
 		newLine               string
 		availabilityLogFolder bool = false
 		availabilitylogLevel  bool = false
 	)
 
-	for _, value := range []string{"all", "error", "success", "warning", "info"} {
+	for _, value := range []string{"all", "error", "success", "warning", "info", "debug"} {
 		if value == logLevel {
 			availabilitylogLevel = true
 		}
@@ -124,95 +136,72 @@ func (s StdOutLogger) ExecutionLimit() {
 	}
 }
 
-func (s StdOutLogger) Error(message string,args ...interface{}) {
-	message = fmt.Sprintf(message+"\n", args...)
-
+func (s StdOutLogger) Error(logging LoggingObj) {
+	logData := s.generatePrefixLog(ERROR,logging,false)
+	fmt.Println(logData)
 	if LogLevel == "all" || LogLevel == "error" {
-		CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
-
-		logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		defer logFile.Close()
-
-		errorLog := log.New(logFile, "[ ERROR ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
-		errorLog.Println(message)
-
-		go s.ExecutionLimit()
+		logData = s.generatePrefixLog(ERROR,logging,true)
+		s.generateFile(logging.Feature,logData)
 	}
 
-	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
-
-	if Style {
-		fmt.Println(CurrentDatetime + " " + PrimaryRed + "[ ERROR ]" + SecondaryRed + " " + message + Reset)
-	} else {
-		fmt.Println(CurrentDatetime + " [ ERROR ] " + message)
-	}
 }
 
-func (s StdOutLogger) Success(message string,args ...interface{}) {
-	message = fmt.Sprintf(message+"\n", args...)
-	if LogLevel == "all" || LogLevel == "success" {
-		CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
-
-		logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		defer logFile.Close()
-
-		successLog := log.New(logFile, "[ SUCCESS ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
-		successLog.Println(message)
-
-		go s.ExecutionLimit()
-	}
-
-	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
-
-	if Style {
-		fmt.Println(CurrentDatetime + " " + PrimaryGreen + "[ SUCCESS ]" + SecondaryGreen + " " + message + Reset)
-	} else {
-		fmt.Println(CurrentDatetime + " [ SUCCESS ] " + message)
-	}
-}
-
-func (s StdOutLogger) Warning(message string,args ...interface{}) {
-	message = fmt.Sprintf(message+"\n", args...)
-	if LogLevel == "all" || LogLevel == "warning" {
-		CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
-
-		logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		defer logFile.Close()
-
-		warningLog := log.New(logFile, "[ WARNING ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
-		warningLog.Println(message)
-
-		go s.ExecutionLimit()
-	}
-
-	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
-
-	if Style {
-		fmt.Println(CurrentDatetime + " " + PrimaryYellow + "[ WARNING ]" + SecondaryYellow + " " + message + Reset)
-	} else {
-		fmt.Println(CurrentDatetime + " [ WARNING ] " + message)
-	}
-}
-
-func (s StdOutLogger) Info(message string,args ...interface{}) {
-	message = fmt.Sprintf(message+"\n", args...)
+func (s StdOutLogger) Info(logging LoggingObj) {
+	logData := s.generatePrefixLog(INFO,logging,false)
+	fmt.Println(logData)
 	if LogLevel == "all" || LogLevel == "info" {
-		CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
-
-		logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		defer logFile.Close()
-
-		infoLog := log.New(logFile, "[ INFO ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
-		infoLog.Println(message)
-
-		go s.ExecutionLimit()
+		logData = s.generatePrefixLog(INFO,logging,true)
+		s.generateFile(logging.Feature,logData)
 	}
 
-	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
-
-	if Style {
-		fmt.Println(CurrentDatetime + " " + PrimaryCyan + "[ INFO ]" + SecondaryCyan + " " + message + Reset)
-	} else {
-		fmt.Println(CurrentDatetime + " [ INFO ] " + message)
-	}
 }
+
+func (s StdOutLogger) Debug(logging LoggingObj) {
+	logData := s.generatePrefixLog(DEBUG,logging,false)
+	fmt.Println(logData)
+	if LogLevel == "all" || LogLevel == "debug" {
+		logData = s.generatePrefixLog(DEBUG,logging,true)
+		s.generateFile(logging.Feature,logData)
+	}
+
+}
+
+func (s StdOutLogger) generatePrefixLog(loglevel string ,logging LoggingObj,toFile bool) string {
+	var logString string
+	jsonData ,_ := json.Marshal(logging.Data)
+	now := converter_value.DateTimeToStringWithFormat(time.Now(),converter_value.DateTimeFormatDefault)
+	if Style && !toFile{
+		switch loglevel {
+		case ERROR:
+			logString =	fmt.Sprintln( PrimaryRed + loglevel + SecondaryRed + Version + " " + now + " " + logging.Host + " " + App + " " +
+				logging.PathFile + " " + logging.RequestId + " " + string(jsonData) + " " + logging.Message + Reset)
+		case INFO:
+			logString =	fmt.Sprintln( PrimaryCyan + loglevel + SecondaryCyan + Version + " " + now + " " + logging.Host + " " + App + " " +
+				logging.PathFile + " " + logging.RequestId + " " + string(jsonData) + " " + logging.Message + Reset)
+		case DEBUG:
+			logString =	fmt.Sprintln( PrimaryYellow + loglevel + SecondaryYellow + Version + " " + now + " " + logging.Host + " " + App + " " +
+				logging.PathFile + " " + logging.RequestId + " " + string(jsonData) + " " + logging.Message + Reset)
+		}
+	} else {
+		logString =	fmt.Sprintln(loglevel + Version + " " + now + " " + logging.Host + " " + App + " " +
+			logging.PathFile + " " + logging.RequestId + " " + string(jsonData) + " " + logging.Message)
+	}
+
+
+	return logString
+}
+
+func (s StdOutLogger) generateFile(feature string,message string) {
+	CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
+	name := App + "-" + Service + "." + feature + "." + CurrentDate
+	logFile, _ := os.OpenFile("logs/"+name+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	defer logFile.Close()
+
+
+	infoLog := log.New(logFile, "", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
+	infoLog.SetFlags(0)
+	infoLog.Println(message)
+
+	go s.ExecutionLimit()
+}
+

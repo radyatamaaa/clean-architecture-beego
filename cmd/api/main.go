@@ -38,9 +38,26 @@ func main() {
 		requestTimeout = 3
 	)
 
+
 	if err := beego.LoadAppConfig("ini", "./conf/app.conf"); err != nil {
 		panic(err)
 	}
+
+	appname ,err := beego.AppConfig.String("appname")
+	if err != nil {
+		panic(err)
+	}
+
+	app ,err := beego.AppConfig.String("app")
+	if err != nil {
+		panic(err)
+	}
+
+	version ,err := beego.AppConfig.String("version")
+	if err != nil {
+		panic(err)
+	}
+
 
 	// initialization database
 	db := database.DB()
@@ -58,7 +75,7 @@ func main() {
 	timeoutContext := time.Duration(requestTimeout) * time.Second
 
 	// logger
-	l := logger.NewStdOutLogger(30,"all","Local",true)
+	l := logger.NewStdOutLogger(30,"all","Local",true,version,app,appname)
 
 	// swagger config
 	if beego.BConfig.RunMode == "dev" {

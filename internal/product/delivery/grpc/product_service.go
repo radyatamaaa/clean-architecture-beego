@@ -23,12 +23,13 @@ func NewProductService(	productUseCase domain.ProductUseCase,log logger.Logger) 
 }
 
 func (p ProductService) GetProducts(ctx context.Context, params *GetProductsParams) (*GetProductsResult, error) {
-	log := "internal.delivery.grpc.ProductService.GetProducts: %s"
+	//log := "internal.delivery.grpc.ProductService.GetProducts: %s"
 
 	result := new(GetProductsResult)
 	if ctx == nil {
 		ctx = context.Background()
 	}
+	ctx = context.WithValue(ctx,"FEATURE","Product")
 
 	v := ctx.Value("JWT_PAYLOAD")
 	fmt.Println(v)
@@ -46,9 +47,9 @@ func (p ProductService) GetProducts(ctx context.Context, params *GetProductsPara
 	if parse, err := strconv.Atoi(offsetParam); err == nil {
 		offset = parse
 	}
-	res, err := p.ProductUseCase.GetProducts(ctx,limit, offset)
+	res, err ,errm:= p.ProductUseCase.GetProducts(ctx,limit, offset)
 	if err != nil{
-		p.log.Error(log,err.Error())
+		ctx = context.WithValue(ctx,"ERROR_MESSAGE",errm)
 		return nil,err
 	}
 

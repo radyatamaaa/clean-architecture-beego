@@ -29,7 +29,7 @@ var (
 	GetProductByIDUrl           = GroupUrl + "/products"
 )
 var (
-	l = logger.NewStdOutLogger(30,"all","Local",true)
+	l = logger.NewStdOutLogger(30,"all","Local",true,"1.1.0","kreditmu","clean-architecture-beego",logger.XmodeTest)
 )
 func TestProductHandler_LoadHandler(t *testing.T) {
 	mockproductUsecase := new(_productUsecaseMock.Usecase)
@@ -56,7 +56,7 @@ func TestProductHandler_GetProducts(t *testing.T) {
 		mockproductUsecase.On("GetProducts", mock.Anything,
 			mock.AnythingOfType("int"),
 			mock.AnythingOfType("int")).
-			Return(mockProduct, nil)
+			Return(mockProduct, nil,"")
 
 
 		queryparam := "?offset=" + strconv.Itoa(offset) +
@@ -88,7 +88,7 @@ func TestProductHandler_GetProducts(t *testing.T) {
 		mockproductUsecase.On("GetProducts", mock.Anything,
 			mock.AnythingOfType("int"),
 			mock.AnythingOfType("int")).
-			Return(mockProduct, errors.New("Internal Server Error"))
+			Return(mockProduct, errors.New("Internal Server Error"),errors.New("Internal Server Error").Error())
 
 
 		queryparam := "?offset=" + strconv.Itoa(offset) +
@@ -120,7 +120,7 @@ func TestProductHandler_GetProducts(t *testing.T) {
 		mockproductUsecase.On("GetProducts", mock.Anything,
 			mock.AnythingOfType("int"),
 			mock.AnythingOfType("int")).
-			Return(mockProduct, context.DeadlineExceeded)
+			Return(mockProduct, context.DeadlineExceeded, context.DeadlineExceeded.Error())
 
 
 		queryparam := "?offset=" + strconv.Itoa(offset) +
@@ -162,7 +162,7 @@ func TestProductHandler_StoreProduct(t *testing.T) {
 
 		mockproductUsecase.On("SaveProduct", mock.Anything,
 			mock.AnythingOfType("domain.ProductStoreRequest")).
-			Return( nil)
+			Return( nil,"")
 
 		j, err := json.Marshal(request)
 		assert.NoError(t, err)
@@ -192,7 +192,7 @@ func TestProductHandler_StoreProduct(t *testing.T) {
 
 		mockproductUsecase.On("SaveProduct", mock.Anything,
 			mock.AnythingOfType("domain.ProductStoreRequest")).
-			Return( errors.New("Internel Server Error"))
+			Return( errors.New("Internel Server Error"),errors.New("Internal Server Error").Error())
 
 		j, err := json.Marshal(request)
 		assert.NoError(t, err)
@@ -222,7 +222,7 @@ func TestProductHandler_StoreProduct(t *testing.T) {
 
 		mockproductUsecase.On("SaveProduct", mock.Anything,
 			mock.AnythingOfType("domain.ProductStoreRequest")).
-			Return( context.DeadlineExceeded)
+			Return( context.DeadlineExceeded, context.DeadlineExceeded.Error())
 
 		j, err := json.Marshal(request)
 		assert.NoError(t, err)
@@ -318,7 +318,7 @@ func TestProductHandler_UpdateProduct(t *testing.T) {
 
 		mockproductUsecase.On("UpdateProduct", mock.Anything,
 			mock.AnythingOfType("domain.ProductUpdateRequest")).
-			Return( nil)
+			Return( nil,"")
 
 		j, err := json.Marshal(request)
 		assert.NoError(t, err)
@@ -348,7 +348,7 @@ func TestProductHandler_UpdateProduct(t *testing.T) {
 
 		mockproductUsecase.On("UpdateProduct", mock.Anything,
 			mock.AnythingOfType("domain.ProductUpdateRequest")).
-			Return( errors.New("Internel Server Error"))
+			Return( errors.New("Internel Server Error"),errors.New("Internal Server Error").Error())
 
 		j, err := json.Marshal(request)
 		assert.NoError(t, err)
@@ -378,7 +378,7 @@ func TestProductHandler_UpdateProduct(t *testing.T) {
 
 		mockproductUsecase.On("UpdateProduct", mock.Anything,
 			mock.AnythingOfType("domain.ProductUpdateRequest")).
-			Return( context.DeadlineExceeded)
+			Return( context.DeadlineExceeded, context.DeadlineExceeded.Error())
 
 		j, err := json.Marshal(request)
 		assert.NoError(t, err)
@@ -472,7 +472,7 @@ func TestProductHandler_DeleteProduct(t *testing.T) {
 
 		mockproductUsecase.On("DeleteProduct", mock.Anything,
 			mock.AnythingOfType("int")).
-			Return( nil)
+			Return( nil,"")
 
 		url := DeleteProductUrl + "/" +id
 		req, err := http.NewRequest(http.MethodDelete, url, strings.NewReader(""))
@@ -501,7 +501,7 @@ func TestProductHandler_DeleteProduct(t *testing.T) {
 
 		mockproductUsecase.On("DeleteProduct", mock.Anything,
 			mock.AnythingOfType("int")).
-			Return( errors.New("Internel Server Error"))
+			Return( errors.New("Internel Server Error"),errors.New("Internal Server Error").Error())
 
 
 		url := DeleteProductUrl + "/" +id
@@ -531,7 +531,7 @@ func TestProductHandler_DeleteProduct(t *testing.T) {
 
 		mockproductUsecase.On("DeleteProduct", mock.Anything,
 			mock.AnythingOfType("int")).
-			Return( context.DeadlineExceeded)
+			Return( context.DeadlineExceeded, context.DeadlineExceeded.Error())
 
 
 		url := DeleteProductUrl + "/" +id
@@ -573,7 +573,7 @@ func TestProductHandler_GetProductByID(t *testing.T) {
 
 		mockproductUsecase.On("GetProductById", mock.Anything,
 			mock.AnythingOfType("uint")).
-			Return(mockProduct, nil)
+			Return(mockProduct, nil,"")
 
 		url := GetProductByIDUrl + "/" +id
 		req, err := http.NewRequest(http.MethodGet, url, strings.NewReader(""))
@@ -602,7 +602,7 @@ func TestProductHandler_GetProductByID(t *testing.T) {
 
 		mockproductUsecase.On("GetProductById", mock.Anything,
 			mock.AnythingOfType("uint")).
-			Return(mockProduct, errors.New("Internal Server Error"))
+			Return(mockProduct, errors.New("Internal Server Error"),errors.New("Internal Server Error").Error())
 
 
 		url := GetProductByIDUrl + "/" +id
@@ -632,7 +632,7 @@ func TestProductHandler_GetProductByID(t *testing.T) {
 
 		mockproductUsecase.On("GetProductById", mock.Anything,
 			mock.AnythingOfType("uint")).
-			Return(mockProduct, context.DeadlineExceeded)
+			Return(mockProduct, context.DeadlineExceeded, context.DeadlineExceeded.Error())
 
 
 		url := GetProductByIDUrl + "/" +id

@@ -75,7 +75,7 @@ func main() {
 	timeoutContext := time.Duration(requestTimeout) * time.Second
 
 	// logger
-	l := logger.NewStdOutLogger(30,"all","Local",true,version,app,appname)
+	l := logger.NewStdOutLogger(30,"all","Local",true,version,app,appname,logger.XmodeRunning)
 
 	// swagger config
 	if beego.BConfig.RunMode == "dev" {

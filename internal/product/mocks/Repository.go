@@ -12,7 +12,7 @@ type Repository struct {
 	mock.Mock
 }
 
-func (_m *Repository) Fetch(ctx context.Context,limit int, offset int) ([]domain.Product, error) {
+func (_m *Repository) Fetch(ctx context.Context,limit int, offset int) ([]domain.Product, error,string) {
 	ret := _m.Called(ctx, limit,offset)
 
 	var r0 []domain.Product
@@ -31,10 +31,19 @@ func (_m *Repository) Fetch(ctx context.Context,limit int, offset int) ([]domain
 		r1 = ret.Error(1)
 	}
 
-	return r0, r1
+	var r2 string
+	if rf, ok := ret.Get(2).(func(context.Context, int,int) string); ok {
+		r2 = rf(ctx, limit,offset)
+	} else {
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(string)
+		}
+	}
+
+	return r0, r1,r2
 }
 
-func (_m *Repository) FindByID(ctx context.Context,id uint) (domain.Product, error) {
+func (_m *Repository) FindByID(ctx context.Context,id uint) (domain.Product, error,string) {
 	ret := _m.Called(ctx, id)
 
 	var r0 domain.Product
@@ -53,10 +62,19 @@ func (_m *Repository) FindByID(ctx context.Context,id uint) (domain.Product, err
 		r1 = ret.Error(1)
 	}
 
-	return r0, r1
+	var r2 string
+	if rf, ok := ret.Get(2).(func(context.Context, uint) string); ok {
+		r2 = rf(ctx, id)
+	} else {
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(string)
+		}
+	}
+
+	return r0, r1,r2
 }
 
-func (_m *Repository) Update(ctx context.Context,product domain.Product) error {
+func (_m *Repository) Update(ctx context.Context,product domain.Product) (error,string) {
 	ret := _m.Called(ctx,product)
 
 	var r0 error
@@ -66,10 +84,19 @@ func (_m *Repository) Update(ctx context.Context,product domain.Product) error {
 		r0 = ret.Error(0)
 	}
 
-	return r0
+	var r1 string
+	if rf, ok := ret.Get(1).(func(context.Context, domain.Product) string); ok {
+		r1 = rf(ctx, product)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(string)
+		}
+	}
+
+	return r0,r1
 }
 
-func (_m *Repository) Store(ctx context.Context,product domain.Product) error {
+func (_m *Repository) Store(ctx context.Context,product domain.Product) (error,string) {
 	ret := _m.Called(ctx,product)
 
 	var r0 error
@@ -79,10 +106,19 @@ func (_m *Repository) Store(ctx context.Context,product domain.Product) error {
 		r0 = ret.Error(0)
 	}
 
-	return r0
+	var r1 string
+	if rf, ok := ret.Get(1).(func(context.Context, domain.Product) string); ok {
+		r1 = rf(ctx, product)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(string)
+		}
+	}
+
+	return r0,r1
 }
 
-func (_m *Repository) Delete(ctx context.Context,id int) error {
+func (_m *Repository) Delete(ctx context.Context,id int) (error,string) {
 	ret := _m.Called(ctx,id)
 
 	var r0 error
@@ -92,5 +128,14 @@ func (_m *Repository) Delete(ctx context.Context,id int) error {
 		r0 = ret.Error(0)
 	}
 
-	return r0
+	var r1 string
+	if rf, ok := ret.Get(1).(func(context.Context, int) string); ok {
+		r1 = rf(ctx, id)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(string)
+		}
+	}
+
+	return r0,r1
 }

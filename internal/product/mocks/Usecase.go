@@ -12,7 +12,7 @@ type Usecase struct {
 	mock.Mock
 }
 
-func (_m *Usecase) GetProducts(ctx context.Context,limit, offset int) ([]domain.ProductObjectResponse, error) {
+func (_m *Usecase) GetProducts(ctx context.Context,limit, offset int) ([]domain.ProductObjectResponse, error,string) {
 	ret := _m.Called(ctx, limit, offset)
 
 	var r0 []domain.ProductObjectResponse
@@ -31,10 +31,19 @@ func (_m *Usecase) GetProducts(ctx context.Context,limit, offset int) ([]domain.
 		r1 = ret.Error(1)
 	}
 
-	return r0, r1
+	var r2 string
+	if rf, ok := ret.Get(2).(func(context.Context, int,int) string); ok {
+		r2 = rf(ctx, limit,offset)
+	} else {
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(string)
+		}
+	}
+
+	return r0, r1,r2
 }
 
-func (_m *Usecase) GetProductById(ctx context.Context,id uint) (*domain.ProductObjectResponse, error) {
+func (_m *Usecase) GetProductById(ctx context.Context,id uint) (*domain.ProductObjectResponse, error,string) {
 	ret := _m.Called(ctx, id)
 
 	var r0 *domain.ProductObjectResponse
@@ -53,11 +62,19 @@ func (_m *Usecase) GetProductById(ctx context.Context,id uint) (*domain.ProductO
 		r1 = ret.Error(1)
 	}
 
+	var r2 string
+	if rf, ok := ret.Get(2).(func(context.Context, uint) string); ok {
+		r2 = rf(ctx, id)
+	} else {
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(string)
+		}
+	}
 
-	return r0, r1
+	return r0, r1,r2
 }
 
-func (_m *Usecase) SaveProduct(ctx context.Context,body domain.ProductStoreRequest) error {
+func (_m *Usecase) SaveProduct(ctx context.Context,body domain.ProductStoreRequest) (error,string) {
 	ret := _m.Called(ctx, body)
 
 	var r0 error
@@ -67,10 +84,19 @@ func (_m *Usecase) SaveProduct(ctx context.Context,body domain.ProductStoreReque
 		r0 = ret.Error(0)
 	}
 
-	return r0
+	var r1 string
+	if rf, ok := ret.Get(1).(func(context.Context, domain.ProductStoreRequest) string); ok {
+		r1 = rf(ctx, body)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(string)
+		}
+	}
+
+	return r0,r1
 }
 
-func (_m *Usecase) UpdateProduct(ctx context.Context,body domain.ProductUpdateRequest) error {
+func (_m *Usecase) UpdateProduct(ctx context.Context,body domain.ProductUpdateRequest) (error,string) {
 	ret := _m.Called(ctx, body)
 
 	var r0 error
@@ -80,10 +106,19 @@ func (_m *Usecase) UpdateProduct(ctx context.Context,body domain.ProductUpdateRe
 		r0 = ret.Error(0)
 	}
 
-	return r0
+	var r1 string
+	if rf, ok := ret.Get(1).(func(context.Context, domain.ProductUpdateRequest) string); ok {
+		r1 = rf(ctx, body)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(string)
+		}
+	}
+
+	return r0,r1
 }
 
-func (_m *Usecase) DeleteProduct(ctx context.Context,id int) error {
+func (_m *Usecase) DeleteProduct(ctx context.Context,id int) (error,string) {
 	ret := _m.Called(ctx, id)
 
 	var r0 error
@@ -93,5 +128,14 @@ func (_m *Usecase) DeleteProduct(ctx context.Context,id int) error {
 		r0 = ret.Error(0)
 	}
 
-	return r0
+	var r1 string
+	if rf, ok := ret.Get(1).(func(context.Context, int) string); ok {
+		r1 = rf(ctx, id)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(string)
+		}
+	}
+
+	return r0,r1
 }

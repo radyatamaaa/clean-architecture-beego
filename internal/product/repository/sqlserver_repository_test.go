@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	l = logger.NewStdOutLogger(30,"all","Local",true)
+	l = logger.NewStdOutLogger(30,"all","Local",true,"1.1.0","kreditmu","clean-architecture-beego",logger.XmodeTest)
 )
 func TestProductRepository_Fetch(t *testing.T) {
 	err := test.NewMockEnv()
@@ -55,7 +55,7 @@ func TestProductRepository_Fetch(t *testing.T) {
 			WillReturnRows(rows)
 		a := productRepo.NewProductRepository(db,l)
 
-		fetch, err := a.Fetch(context.TODO(),limit,offset)
+		fetch, err ,_:= a.Fetch(context.TODO(),limit,offset)
 		assert.NoError(t, err)
 		assert.NotNil(t, fetch)
 	})
@@ -77,7 +77,7 @@ func TestProductRepository_Fetch(t *testing.T) {
 		a := productRepo.NewProductRepository(db,l)
 
 
-		_, err := a.Fetch(context.TODO(),limit,offset)
+		_, err ,_:= a.Fetch(context.TODO(),limit,offset)
 		assert.Error(t, err)
 	})
 
@@ -118,7 +118,7 @@ func TestProductRepository_FindByID(t *testing.T) {
 			WillReturnRows(rows)
 		a := productRepo.NewProductRepository(db,l)
 
-		findByID, err := a.FindByID(context.TODO(),id)
+		findByID, err ,_:= a.FindByID(context.TODO(),id)
 		assert.NoError(t, err)
 		assert.NotNil(t, findByID)
 	})
@@ -133,7 +133,7 @@ func TestProductRepository_FindByID(t *testing.T) {
 			WillReturnRows(rows)
 		a := productRepo.NewProductRepository(db,l)
 
-		_, err := a.FindByID(context.TODO(),id)
+		_, err ,_:= a.FindByID(context.TODO(),id)
 		assert.Error(t, err)
 	})
 
@@ -176,7 +176,7 @@ func TestProductRepository_Update(t *testing.T) {
 		mock.ExpectCommit()
 		a := productRepo.NewProductRepository(db,l)
 
-		err := a.Update(context.TODO(),mockProduct)
+		err ,_:= a.Update(context.TODO(),mockProduct)
 		assert.NoError(t, err)
 	})
 
@@ -196,7 +196,7 @@ func TestProductRepository_Update(t *testing.T) {
 		mock.ExpectCommit()
 		a := productRepo.NewProductRepository(db,l)
 
-		err := a.Update(context.TODO(),mockProduct)
+		err ,_:= a.Update(context.TODO(),mockProduct)
 		assert.Error(t, err)
 	})
 
@@ -238,7 +238,7 @@ func TestProductRepository_Store(t *testing.T) {
 		mock.ExpectCommit()
 		a := productRepo.NewProductRepository(db,l)
 
-		err := a.Store(context.TODO(),mockProduct)
+		err ,_:= a.Store(context.TODO(),mockProduct)
 		assert.NoError(t, err)
 	})
 
@@ -258,7 +258,7 @@ func TestProductRepository_Store(t *testing.T) {
 		mock.ExpectCommit()
 		a := productRepo.NewProductRepository(db,l)
 
-		err := a.Store(context.TODO(),mockProduct)
+		err ,_:= a.Store(context.TODO(),mockProduct)
 		assert.Error(t, err)
 	})
 
@@ -291,7 +291,7 @@ func TestProductRepository_Delete(t *testing.T) {
 			WillReturnResult(sqlmock.NewResult(int64(mockProduct.Id), 1))
 		a := productRepo.NewProductRepository(db,l)
 
-		 err := a.Delete(context.TODO(),int(id))
+		 err ,_:= a.Delete(context.TODO(),int(id))
 		assert.NoError(t, err)
 	})
 
@@ -303,7 +303,7 @@ func TestProductRepository_Delete(t *testing.T) {
 			WillReturnResult(sqlmock.NewResult(0, 1))
 		a := productRepo.NewProductRepository(db,l)
 
-		 err := a.Delete(context.TODO(),int(id))
+		 err ,_:= a.Delete(context.TODO(),int(id))
 		assert.Error(t, err)
 	})
 

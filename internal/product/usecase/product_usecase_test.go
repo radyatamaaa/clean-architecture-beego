@@ -15,7 +15,7 @@ import (
 )
 var (
 	timeoutContext = time.Second * 30
-	l = logger.NewStdOutLogger(30,"all","Local",true)
+	l = logger.NewStdOutLogger(30,"all","Local",true,"1.1.0","kreditmu","clean-architecture-beego",logger.XmodeTest)
 )
 func TestProductUseCase_GetProducts(t *testing.T) {
 	//resultMock
@@ -31,11 +31,11 @@ func TestProductUseCase_GetProducts(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("Fetch", mock.Anything,
-			mock.AnythingOfType("int"),mock.AnythingOfType("int")).Return(mockProduct, nil).Once()
+			mock.AnythingOfType("int"),mock.AnythingOfType("int")).Return(mockProduct, nil,"").Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		a, err := u.GetProducts(context.TODO(), limit,offset)
+		a, err ,_:= u.GetProducts(context.TODO(), limit,offset)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, a)
@@ -48,11 +48,11 @@ func TestProductUseCase_GetProducts(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("Fetch", mock.Anything,
-			mock.AnythingOfType("int"),mock.AnythingOfType("int")).Return([]domain.Product{}, errors.New("invalid query")).Once()
+			mock.AnythingOfType("int"),mock.AnythingOfType("int")).Return([]domain.Product{}, errors.New("invalid query"),errors.New("invalid query").Error()).Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		_, err := u.GetProducts(context.TODO(), limit,offset)
+		_, err ,_:= u.GetProducts(context.TODO(), limit,offset)
 
 		assert.Error(t, err)
 
@@ -73,11 +73,11 @@ func TestProductUseCase_GetProductById(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("FindByID", mock.Anything,
-			mock.AnythingOfType("uint")).Return(mockProduct, nil).Once()
+			mock.AnythingOfType("uint")).Return(mockProduct, nil,"").Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		a, err := u.GetProductById(context.TODO(), id)
+		a, err ,_:= u.GetProductById(context.TODO(), id)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, a)
@@ -90,11 +90,11 @@ func TestProductUseCase_GetProductById(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("FindByID", mock.Anything,
-			mock.AnythingOfType("uint")).Return(domain.Product{}, errors.New("invalid query")).Once()
+			mock.AnythingOfType("uint")).Return(domain.Product{}, errors.New("invalid query"),errors.New("invalid query").Error()).Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		_, err := u.GetProductById(context.TODO(), id)
+		_, err,_ := u.GetProductById(context.TODO(), id)
 
 		assert.Error(t, err)
 
@@ -113,11 +113,11 @@ func TestProductUseCase_SaveProduct(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("Store", mock.Anything,
-			mock.AnythingOfType("domain.Product")).Return(nil).Once()
+			mock.AnythingOfType("domain.Product")).Return(nil,"").Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		err := u.SaveProduct(context.TODO(), mockProduct)
+		err,_ := u.SaveProduct(context.TODO(), mockProduct)
 
 		assert.NoError(t, err)
 
@@ -129,11 +129,11 @@ func TestProductUseCase_SaveProduct(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("Store", mock.Anything,
-			mock.AnythingOfType("domain.Product")).Return(errors.New("invalid query")).Once()
+			mock.AnythingOfType("domain.Product")).Return(errors.New("invalid query"),errors.New("invalid query").Error()).Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		err := u.SaveProduct(context.TODO(), mockProduct)
+		err ,_:= u.SaveProduct(context.TODO(), mockProduct)
 
 		assert.Error(t, err)
 
@@ -153,11 +153,11 @@ func TestProductUseCase_UpdateProduct(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("Update", mock.Anything,
-			mock.AnythingOfType("domain.Product")).Return(nil).Once()
+			mock.AnythingOfType("domain.Product")).Return(nil,"").Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		err := u.UpdateProduct(context.TODO(), mockProduct)
+		err,_ := u.UpdateProduct(context.TODO(), mockProduct)
 
 		assert.NoError(t, err)
 
@@ -169,11 +169,11 @@ func TestProductUseCase_UpdateProduct(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("Update", mock.Anything,
-			mock.AnythingOfType("domain.Product")).Return(errors.New("invalid query")).Once()
+			mock.AnythingOfType("domain.Product")).Return(errors.New("invalid query"),errors.New("invalid query").Error()).Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		err := u.UpdateProduct(context.TODO(), mockProduct)
+		err,_ := u.UpdateProduct(context.TODO(), mockProduct)
 
 		assert.Error(t, err)
 
@@ -195,11 +195,11 @@ func TestProductUseCase_DeleteProduct(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("Delete", mock.Anything,
-			mock.AnythingOfType("int")).Return(nil).Once()
+			mock.AnythingOfType("int")).Return(nil,"").Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		err := u.DeleteProduct(context.TODO(), int(id))
+		err ,_:= u.DeleteProduct(context.TODO(), int(id))
 
 		assert.NoError(t, err)
 
@@ -211,11 +211,11 @@ func TestProductUseCase_DeleteProduct(t *testing.T) {
 		mockProductRepository := new(_mockProductRepository.Repository)
 
 		mockProductRepository.On("Delete", mock.Anything,
-			mock.AnythingOfType("int")).Return(errors.New("invalid query")).Once()
+			mock.AnythingOfType("int")).Return(errors.New("invalid query"),errors.New("invalid query").Error()).Once()
 
 		u := usecase.NewProductUseCase(timeoutContext,mockProductRepository,l)
 
-		err := u.DeleteProduct(context.TODO(), int(id))
+		err ,_:= u.DeleteProduct(context.TODO(), int(id))
 
 		assert.Error(t, err)
 

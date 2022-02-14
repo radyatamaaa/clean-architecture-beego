@@ -31,6 +31,9 @@ const (
 	ERROR = "<ERROR>"
 	INFO = "<INFO>"
 	DEBUG = "<DEBUG>"
+
+	XmodeTest = "Test"
+	XmodeRunning = "Running"
 )
 
 var (
@@ -41,6 +44,7 @@ var (
 	Version string
 	App string
 	Service string
+	Xmode string
 )
 
 
@@ -56,10 +60,11 @@ var L = &StdOutLogger{}
 // StdOutLogger logs to standard out
 type StdOutLogger struct{}
 
-func NewStdOutLogger(limit int, logLevel, timeZone string, style bool,version string,app string,service string) Logger {
+func NewStdOutLogger(limit int, logLevel, timeZone string, style bool,version string,app string,service string,xmode string) Logger {
 	Version = version
 	App = app
 	Service = service
+	xmode = xmode
 	var (
 		newLine               string
 		availabilityLogFolder bool = false
@@ -92,32 +97,35 @@ func NewStdOutLogger(limit int, logLevel, timeZone string, style bool,version st
 		newLine = "\n"
 	}
 
-	ignoreFile, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
-	}
-	defer ignoreFile.Close()
+	if xmode != XmodeTest {
+		ignoreFile, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			panic(err)
+		}
+		defer ignoreFile.Close()
 
-	contentIgnoreFile, err := ioutil.ReadFile(".gitignore")
-	if err != nil {
-		panic(err)
-	}
+		contentIgnoreFile, err := ioutil.ReadFile(".gitignore")
+		if err != nil {
+			panic(err)
+		}
 
-	contents := strings.Split(string(contentIgnoreFile), newLine)
+		contents := strings.Split(string(contentIgnoreFile), newLine)
 
-	for i := 0; i < len(contents); i++ {
-		if contents[i] == "logs/" {
-			availabilityLogFolder = true
+		for i := 0; i < len(contents); i++ {
+			if contents[i] == "logs/" {
+				availabilityLogFolder = true
+			}
+		}
+
+		if !availabilityLogFolder {
+			ignoreFile.Write([]byte("logs/" + newLine))
+		}
+
+		if _, err := os.Stat("logs"); os.IsNotExist(err) {
+			os.Mkdir("logs", 0755)
 		}
 	}
 
-	if !availabilityLogFolder {
-		ignoreFile.Write([]byte("logs/" + newLine))
-	}
-
-	if _, err := os.Stat("logs"); os.IsNotExist(err) {
-		os.Mkdir("logs", 0755)
-	}
 
 	return StdOutLogger{}
 }
@@ -139,7 +147,7 @@ func (s StdOutLogger) ExecutionLimit() {
 func (s StdOutLogger) Error(logging LoggingObj) {
 	logData := s.generatePrefixLog(ERROR,logging,false)
 	fmt.Println(logData)
-	if LogLevel == "all" || LogLevel == "error" {
+	if (LogLevel == "all" || LogLevel == "error") && Xmode != XmodeTest{
 		logData = s.generatePrefixLog(ERROR,logging,true)
 		s.generateFile(logging.Feature,logData)
 	}
@@ -149,7 +157,7 @@ func (s StdOutLogger) Error(logging LoggingObj) {
 func (s StdOutLogger) Info(logging LoggingObj) {
 	logData := s.generatePrefixLog(INFO,logging,false)
 	fmt.Println(logData)
-	if LogLevel == "all" || LogLevel == "info" {
+	if (LogLevel == "all" || LogLevel == "info") && Xmode != XmodeTest {
 		logData = s.generatePrefixLog(INFO,logging,true)
 		s.generateFile(logging.Feature,logData)
 	}
@@ -159,7 +167,7 @@ func (s StdOutLogger) Info(logging LoggingObj) {
 func (s StdOutLogger) Debug(logging LoggingObj) {
 	logData := s.generatePrefixLog(DEBUG,logging,false)
 	fmt.Println(logData)
-	if LogLevel == "all" || LogLevel == "debug" {
+	if (LogLevel == "all" || LogLevel == "debug") && Xmode != XmodeTest {
 		logData = s.generatePrefixLog(DEBUG,logging,true)
 		s.generateFile(logging.Feature,logData)
 	}

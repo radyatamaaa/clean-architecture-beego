@@ -22,7 +22,7 @@ const bufSize = 1024 * 1024
 var (
 	lis *bufconn.Listener
 	productUsecaseMock  *_productUsecaseMock.Usecase
-	l = logger.NewStdOutLogger(30,"all","Local",true)
+	l = logger.NewStdOutLogger(30,"all","Local",true,"1.1.0","kreditmu","clean-architecture-beego",logger.XmodeTest)
 )
 
 type Token struct {
@@ -87,7 +87,7 @@ func TestProductService_GetProducts(t *testing.T) {
 			productUsecaseMock.On("GetProducts", mock.Anything,
 				mock.AnythingOfType("int"),
 				mock.AnythingOfType("int")).
-				Return(mockProduct, nil)
+				Return(mockProduct, nil,"")
 
 			ctx := context.Background()
 			var connection *grpc.ClientConn

@@ -1,16 +1,15 @@
 package middlewares
 
 import (
-	"encoding/json"
-	"github.com/twinj/uuid"
 	"clean-architecture-beego/pkg/jwt"
 	"clean-architecture-beego/pkg/logger"
 	"context"
+	"encoding/json"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	"github.com/twinj/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"net/http"
 )
 
 type RpcMiddleware struct {
@@ -66,7 +65,7 @@ func(c *RpcMiddleware) LoggerStreamInterceptor(srv interface{}, stream grpc.Serv
 	if ctx.Value("FEATURE") != nil{
 		logging.Feature = ctx.Value("FEATURE").(string)
 	}
-	if logging.Data.HttpCode != http.StatusOK {
+	if logging.Data.HttpCode != int(codes.OK) {
 		if ctx.Value("ERROR_MESSAGE") != nil{
 			logging.Message = ctx.Value("ERROR_MESSAGE").(string)
 		}
@@ -111,7 +110,7 @@ func(c *RpcMiddleware) LoggerUnaryServerInterceptor(ctx context.Context, req int
 	if ctx.Value("FEATURE") != nil{
 		logging.Feature = ctx.Value("FEATURE").(string)
 	}
-	if logging.Data.HttpCode != http.StatusOK {
+	if logging.Data.HttpCode != int(codes.OK) {
 		if ctx.Value("ERROR_MESSAGE") != nil{
 			logging.Message = ctx.Value("ERROR_MESSAGE").(string)
 		}

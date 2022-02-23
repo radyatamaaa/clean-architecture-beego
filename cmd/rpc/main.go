@@ -23,7 +23,7 @@ import (
 // sample grpc server
 func main() {
 
-	// default vars
+	// default varss
 	var (
 		requestTimeout = 3
 		httpPortGrpc   = "9090"

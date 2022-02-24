@@ -33,7 +33,7 @@ import (
 // @query.collection.format multi
 func main() {
 
-	// default varss
+	// default vars
 	var (
 		requestTimeout = 3
 	)
